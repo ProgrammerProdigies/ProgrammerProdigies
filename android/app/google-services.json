@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "373790027911",
+    "firebase_url": "https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "programmer-prodigies",
+    "storage_bucket": "programmer-prodigies.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:373790027911:android:6fc62beec8e366e5198822",
+        "android_client_info": {
+          "package_name": "com.example.programmer_prodigies"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKu9JCnQn9sVi0B8SUqv8_1tDIWKlMUN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
