@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:programmer_prodigies/Admin/chapters_page.dart';
+import 'package:programmer_prodigies/Student/chapters_page.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -10,14 +12,27 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage> {
   List<Map> subjects = [
-    {"subject": "CPPM"},
-    {"subject": "Java"},
-    {"subject": ".Net"},
-    {"subject": "React.js"}
+    {"key": "1", "semester": "1", "subject": "OS"},
+    {"key": "2", "semester": "2", "subject": "CPPM"},
+    {"key": "3", "semester": "3", "subject": ".Net"},
+    {"key": "4", "semester": "4", "subject": "WDC"},
+    {"key": "5", "semester": "5", "subject": "Java"},
+    {"key": "6", "semester": "6", "subject": "Networking"},
   ];
+
+  String viewMode = "Normal";
 
   Future<List<Map>> getPackagesData() async {
     return subjects;
+  }
+
+  void handleCardTap(BuildContext context, int index) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StudentChaptersPage(subjects[index]["key"]),
+        ),
+      );
   }
 
   @override
@@ -26,7 +41,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Student Home page",
+          "Student Subjects page",
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -37,55 +52,71 @@ class _StudentHomePageState extends State<StudentHomePage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             if (subjects.isNotEmpty) {
-              return ListView.builder(
-                // shrinkWrap: true,
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                ),
                 itemCount: subjects.length,
                 itemBuilder: (context, index) {
-                  return Card(
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text(
-                                      subjects[index]["subject"],
-                                      style: const TextStyle(fontSize: 17),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
+                  return InkWell(
+                    onTap: () => handleCardTap(context, index),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xff2a446b),
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: const Color(0xff2a446b),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "assets/Logo/Programmer.png",
+                              width: MediaQuery.of(context).size.width * 0.29,
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(5),
-                              child: Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white,
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.width * 0.15,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Text(
+                                        "Semester: ${subjects[index]["semester"]}",
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Text(
+                                        subjects[index]["subject"],
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   );
                 },
               );
-            } else if (subjects.isEmpty) {
+            } else {
               return Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,10 +135,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     ),
                   ],
                 ),
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
               );
             }
           } else {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/subject_update_page.dart';
+import 'package:programmer_prodigies/Admin/chapters_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -12,45 +12,93 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   List<Map> subjects = [
-    {"subject": "CPPM"},
-    {"subject": "Java"},
-    {"subject": ".Net"},
-    {"subject": "React.js"}
+    {"key": "1","semester":"1", "subject": "OS"},
+    {"key": "2","semester":"2", "subject": "CPPM"},
+    {"key": "3","semester":"3", "subject": ".Net"},
+    {"key": "4","semester":"4", "subject": "WDC"},
+    {"key": "5","semester":"5", "subject": "Java"},
+    {"key": "6","semester":"6", "subject": "Networking"},
   ];
-  var viewMode = "Normal";
-  var icon = FontAwesomeIcons.userPen;
+
+  String viewMode = "Normal";
 
   Future<List<Map>> getPackagesData() async {
     return subjects;
   }
 
+  void toggleViewMode() {
+    setState(() {
+      viewMode = viewMode == "Normal" ? "Edit" : "Normal";
+    });
+  }
+
+  void handleCardTap(BuildContext context, int index) {
+    if (viewMode == "Normal") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminChaptersPage(subjects[index]["key"]),
+        ),
+      );
+    } else if (viewMode == "Edit") {
+      // Create a TextEditingController to manage the input
+      TextEditingController nameController =
+          TextEditingController(text: subjects[index]["subject"]);
+
+      // Show an AlertDialog for editing the subject name
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Edit Subject Name'),
+            content: TextField(
+              controller: nameController,
+              decoration:
+                  const InputDecoration(hintText: 'Enter new subject name'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                // Close the dialog
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Update the subject name
+                  setState(() {
+                    subjects[index]["subject"] =
+                        nameController.text; // Update the name in the list
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (viewMode == "Normal") {
-      icon = FontAwesomeIcons.userPen;
-    } else if (viewMode == "Edit") {
-      icon = FontAwesomeIcons.check;
-    }
+    final icon = viewMode == "Normal"
+        ? FontAwesomeIcons.userPen
+        : FontAwesomeIcons.check;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Admin Home page",
+          "Admin Subjects page",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: <Widget>[
+        actions: [
           IconButton(
-              onPressed: () {
-                setState(() {
-                  if (viewMode == "Normal") {
-                    viewMode = "Edit";
-                  } else if (viewMode == "Edit") {
-                    viewMode = "Normal";
-                  }
-                });
-              },
-              icon: FaIcon(icon))
+            onPressed: toggleViewMode,
+            icon: FaIcon(icon),
+          ),
         ],
       ),
       body: FutureBuilder<List<Map>>(
@@ -70,15 +118,54 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 itemCount: subjects.length,
                 itemBuilder: (context, index) {
                   return InkWell(
-                    onTap: () {
-                      if (viewMode == "Normal") {
-                        // Handle the tap event here
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const AdminSubjectUpdatePage(),
-                          ),
+                    onTap: () => handleCardTap(context, index),
+                    onLongPress: () {
+                      if(viewMode == "Edit") {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Delete Chapter...!!'),
+                              content: Text(
+                                  "Are you sure you want to delete ${subjects[index]["subject"]}?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      subjects.removeWhere(
+                                            (ch) => ch["key"] == subjects[index]["key"],
+                                      );
+                                    });
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Yes'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Delete Subject...!!'),
+                              content: const Text("You are not in edit mode. Please start edit mode from top right side."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Ok'),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       }
                     },
@@ -88,57 +175,46 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: const Color(0xff2a446b),
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Column(
                           children: [
                             Image.asset(
                               "assets/Logo/Programmer.png",
-                              width: MediaQuery.of(context).size.width * 0.35,
+                              width: MediaQuery.of(context).size.width * 0.29,
                             ),
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.width * 0.09,
+                                    MediaQuery.of(context).size.width * 0.15,
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
-                                          child: Text(
-                                            subjects[index]["subject"],
-                                            style:
-                                                const TextStyle(fontSize: 17),
-                                          ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Text(
+                                        "Semester: ${subjects[index]["semester"]}",
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.white,
                                         ),
-                                      ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Text(
+                                        subjects[index]["subject"],
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            // Stack(
-                            //   children: [
-                            //
-                            //     // Arrow
-                            //     // const Positioned(
-                            //     //   top: 5,
-                            //     //   right: 5,
-                            //     //   child: Padding(
-                            //     //     padding: EdgeInsets.all(5),
-                            //     //     child: Icon(
-                            //     //       Icons.arrow_forward_ios,
-                            //     //       color: Color(0xff2a446b),
-                            //     //     ),
-                            //     //   ),
-                            //     // ),
-                            //   ],
-                            // ),
                           ],
                         ),
                       ),
@@ -146,7 +222,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   );
                 },
               );
-            } else if (subjects.isEmpty) {
+            } else {
               return Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -165,10 +241,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     ),
                   ],
                 ),
-              );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
               );
             }
           } else {

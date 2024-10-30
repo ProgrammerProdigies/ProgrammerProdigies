@@ -138,7 +138,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 _togglePasswordVisibility(context);
                               },
                             ),
-                            prefixIconColor: Color(0xff2a446b),
+                            prefixIconColor: const Color(0xff2a446b),
                             labelText: 'Password',
                             hintText: 'Enter Password',
                           ),
@@ -163,13 +163,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 isConfirmPasswordVisible
                                     ? Icons.visibility
                                     : Icons.visibility_off,
-                                color: Color(0xff2a446b),
+                                color: const Color(0xff2a446b),
                               ),
                               onPressed: () {
                                 _toggleConfirmPasswordVisibility(context);
                               },
                             ),
-                            prefixIconColor: Color(0xff2a446b),
+                            prefixIconColor: const Color(0xff2a446b),
                             labelText: 'Confirm Password',
                             hintText: 'Re-Enter Password',
                           ),

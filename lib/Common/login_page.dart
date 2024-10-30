@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/home_page.dart';
+import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
 
@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: Padding(
                     padding:
-                    const EdgeInsets.only(top: 50, right: 20, left: 20),
+                        const EdgeInsets.only(top: 50, right: 20, left: 20),
                     child: Column(
                       children: [
                         Column(
@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             Padding(
                               padding:
-                              const EdgeInsets.only(right: 20, left: 20),
+                                  const EdgeInsets.only(right: 20, left: 20),
                               child: Form(
                                 key: _formKey,
                                 child: SingleChildScrollView(
@@ -128,7 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                                                   context);
                                             },
                                           ),
-                                          prefixIconColor: const Color(0xff2a446b),
+                                          prefixIconColor:
+                                              const Color(0xff2a446b),
                                           filled: true,
                                           fillColor: Colors.white,
                                           labelText: 'Password',
@@ -184,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                                           child: const Text(
                                             'LOG IN',
                                             style:
-                                            TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.white),
                                           ),
                                         ),
                                       ),
@@ -193,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.all(0),
@@ -213,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                      const RegistrationPage()),
+                                                          const RegistrationPage()),
                                                 );
                                               },
                                               child: const Text(
@@ -264,13 +265,17 @@ class _LoginPageState extends State<LoginPage> {
     final scaffoldContext = context;
 
     var username = controllerUname.text;
-    if(username == "s"){
+    if (username == "s") {
       Navigator.pop(scaffoldContext);
-      Navigator.push(scaffoldContext, MaterialPageRoute(builder: (scaffoldContext)=>const StudentHomePage()));
+      Navigator.push(
+          scaffoldContext,
+          MaterialPageRoute(
+              builder: (scaffoldContext) => const StudentHomePage()));
     }
-    if(username == "a"){
+    if (username == "a") {
       Navigator.pop(scaffoldContext);
-      Navigator.push(scaffoldContext, MaterialPageRoute(builder: (scaffoldContext)=>const AdminHomePage()));
+      Navigator.push(scaffoldContext,
+          MaterialPageRoute(builder: (scaffoldContext) => const BottomBar()));
     }
     // var password = controllerPassword.text;
     // var encPassword = encryptString(password);
@@ -322,7 +327,6 @@ class _LoginPageState extends State<LoginPage> {
     //     );
     //   }
     // });
-
   }
 }
 
