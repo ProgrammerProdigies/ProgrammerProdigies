@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/registration_page.dart';
+import 'package:programmer_prodigies/Admin/home_page.dart';
+import 'package:programmer_prodigies/Student/home_page.dart';
+import 'package:programmer_prodigies/Student/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -172,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                                           onPressed: () {
                                             if (_formKey.currentState!
                                                 .validate()) {
-                                              // _performLogin(context);
+                                              _performLogin(context);
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
@@ -258,61 +260,70 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  // void _performLogin(BuildContext context) async {
-  //   final scaffoldContext = context;
-  //
-  //   var username = controllerUname.text;
-  //   var password = controllerPassword.text;
-  //   var encPassword = encryptString(password);
-  //   Query dbRef2 = FirebaseDatabase.instance
-  //       .ref()
-  //       .child('ArogyaSair/tblUser')
-  //       .orderByChild("Username")
-  //       .equalTo(username);
-  //   String msg = "Invalid Username or Password..! Please check..!!";
-  //   Map data;
-  //   var count = 0;
-  //   await dbRef2.once().then((documentSnapshot) async {
-  //     for (var x in documentSnapshot.snapshot.children) {
-  //       String? key = x.key;
-  //       data = x.value as Map;
-  //       if (data["Username"] == username &&
-  //           data["Password"].toString() == encPassword) {
-  //         await saveData('username', data["Username"]);
-  //         await saveData('firstname', data["FirstName"]);
-  //         await saveData('lastname', data["LastName"]);
-  //         await saveData('email', data["Email"]);
-  //         await saveData('key', key);
-  //         count = count + 1;
-  //         Navigator.pop(context);
-  //         Navigator.push(context,
-  //             MaterialPageRoute(builder: (context) => const BottomBar()));
-  //       } else {
-  //         msg = "Sorry..! Wrong Username or Password";
-  //         _showSnackbar(scaffoldContext, msg);
-  //       }
-  //     }
-  //     if (count == 0) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) {
-  //           return AlertDialog(
-  //             title: const Text("Alert Message"),
-  //             content: Text(msg.toString()),
-  //             actions: <Widget>[
-  //               OutlinedButton(
-  //                 child: const Text('OK'),
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               )
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //   });
-  // }
+  void _performLogin(BuildContext context) async {
+    final scaffoldContext = context;
+
+    var username = controllerUname.text;
+    if(username == "s"){
+      Navigator.pop(scaffoldContext);
+      Navigator.push(scaffoldContext, MaterialPageRoute(builder: (scaffoldContext)=>const StudentHomePage()));
+    }
+    if(username == "a"){
+      Navigator.pop(scaffoldContext);
+      Navigator.push(scaffoldContext, MaterialPageRoute(builder: (scaffoldContext)=>const AdminHomePage()));
+    }
+    // var password = controllerPassword.text;
+    // var encPassword = encryptString(password);
+    // Query dbRef2 = FirebaseDatabase.instance
+    //     .ref()
+    //     .child('ArogyaSair/tblUser')
+    //     .orderByChild("Username")
+    //     .equalTo(username);
+    // String msg = "Invalid Username or Password..! Please check..!!";
+    // Map data;
+    // var count = 0;
+    // await dbRef2.once().then((documentSnapshot) async {
+    //   for (var x in documentSnapshot.snapshot.children) {
+    //     String? key = x.key;
+    //     data = x.value as Map;
+    //     if (data["Username"] == username &&
+    //         data["Password"].toString() == encPassword) {
+    //       await saveData('username', data["Username"]);
+    //       await saveData('firstname', data["FirstName"]);
+    //       await saveData('lastname', data["LastName"]);
+    //       await saveData('email', data["Email"]);
+    //       await saveData('key', key);
+    //       count = count + 1;
+    //       Navigator.pop(context);
+    //       Navigator.push(context,
+    //           MaterialPageRoute(builder: (context) => const BottomBar()));
+    //     } else {
+    //       msg = "Sorry..! Wrong Username or Password";
+    //       _showSnackbar(scaffoldContext, msg);
+    //     }
+    //   }
+    //   if (count == 0) {
+    //     showDialog(
+    //       context: context,
+    //       builder: (context) {
+    //         return AlertDialog(
+    //           title: const Text("Alert Message"),
+    //           content: Text(msg.toString()),
+    //           actions: <Widget>[
+    //             OutlinedButton(
+    //               child: const Text('OK'),
+    //               onPressed: () {
+    //                 Navigator.of(context).pop();
+    //               },
+    //             )
+    //           ],
+    //         );
+    //       },
+    //     );
+    //   }
+    // });
+
+  }
 }
 
 String encryptString(String originalString) {

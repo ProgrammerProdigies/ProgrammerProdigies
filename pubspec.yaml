@@ -42,6 +42,8 @@ dependencies:
   firebase_messaging: ^15.1.0
   shared_preferences: ^2.2.3
   crypto: ^3.0.3
+  font_awesome_flutter: ^10.7.0
+  lottie: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +71,7 @@ flutter:
   assets:
    - assets/GIF/
    - assets/Logo/
+   - assets/Animation/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
