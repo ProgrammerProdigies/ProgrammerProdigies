@@ -1,94 +1,48 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/view_pdf.dart';
+import 'package:programmer_prodigies/Admin/home_page.dart';
+import 'package:programmer_prodigies/Models/sem_model.dart';
 
-class AdminChaptersPage extends StatefulWidget {
-  final String subjectKey;
-
-  const AdminChaptersPage(this.subjectKey, {super.key});
+class AdminSemesterPage extends StatefulWidget {
+  const AdminSemesterPage({super.key});
 
   @override
-  State<AdminChaptersPage> createState() => _AdminChaptersPageState();
+  State<AdminSemesterPage> createState() => _AdminSemesterPageState();
 }
 
-class _AdminChaptersPageState extends State<AdminChaptersPage> {
-  List<Map> subjects = [
-    {"key": "1", "semester": "1", "subject": "OS"},
-    {"key": "2", "semester": "2", "subject": "CPPM"},
-    {"key": "3", "semester": "3", "subject": ".Net"},
-    {"key": "4", "semester": "4", "subject": "WDC"},
-    {"key": "5", "semester": "5", "subject": "Java"},
-    {"key": "6", "semester": "6", "subject": "Networking"},
-  ];
+class _AdminSemesterPageState extends State<AdminSemesterPage> {
+  List<Map> semester = [];
+  Future<List<Map>>? semesterFuture;
 
-  List<Map> chapters = [
-    {
-      "key": "1",
-      "SubjectKey": "1",
-      "ChapterName": "OS Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "2",
-      "SubjectKey": "1",
-      "ChapterName": "OS Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "3",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "4",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "5",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "6",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Basic concepts",
-      "Visibility": "true"
-    },
-    {
-      "key": "7",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "8",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Basic concepts",
-      "Visibility": "true"
-    },
-  ];
-
-  List<Map> pdfs = [
-    {"key": "1", "PdfName": "Book1", "ChapterName": "1"},
-    {"key": "2", "PdfName": "Book1", "ChapterName": "2"},
-    {"key": "3", "PdfName": "Book1", "ChapterName": "3"},
-    {"key": "4", "PdfName": "Book1", "ChapterName": "4"},
-    {"key": "5", "PdfName": "Book1", "ChapterName": "5"},
-    {"key": "6", "PdfName": "Book1", "ChapterName": "6"},
-  ];
+  var dbRef =
+      FirebaseDatabase.instance.ref().child("ProgrammerProdigies/tblSemester");
 
   String viewMode = "Normal";
 
-  Future<List<Map>> getPackagesData() async {
-    return chapters;
+  @override
+  void initState() {
+    super.initState();
+    getSemesterData();
+  }
+
+  Future<List<Map>> getSemesterData() async {
+    semester.clear();
+    await dbRef.once().then((event) {
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+      if (values != null) {
+        values.forEach((key, value) {
+          semester.add({
+            "key": key,
+            "Semester": value["Semester"],
+            "Visibility": value["Visibility"],
+          });
+        });
+        semester.sort((a, b) => a["Semester"].compareTo(b["Semester"]));
+      }
+    });
+    return semester;
   }
 
   void toggleViewMode() {
@@ -97,102 +51,66 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
     });
   }
 
-  void handleCardTap(BuildContext context, int index) async {
-    TextEditingController nameController =
-        TextEditingController(text: chapters[index]["ChapterName"]);
-    String pdfName = ''; // Variable to store the PDF file name
-
+  void handleCardTap(BuildContext context, int index) {
     if (viewMode == "Normal") {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminViewChapterPDF(chapters[index]["key"]),
+          builder: (context) => AdminHomePage(semester[index]["key"]),
         ),
       );
-    } else if (viewMode == "Edit") {
-      File? pdfFile;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                title: const Text('Edit Chapter Name and Upload PDF'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter new chapter name'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['pdf'],
-                        );
-
-                        if (result != null) {
-                          setState(() {
-                            pdfFile = File(result.files.single.path!);
-                            pdfName = result.files.single.name; // Get PDF name
-                            pdfs[index]["PdfName"] = pdfName;
-                            setState(() {});
-                          });
-                        }
-                      },
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Upload PDF"),
-                    ),
-                    if (pdfFile != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          "Selected PDF: $pdfName",
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        chapters[index]["ChapterName"] = nameController.text;
-                        // Save the PDF name or upload it to storage here as needed
-                        chapters[index]["pdfName"] = pdfName;
-                      });
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Save'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      );
     }
+    // else if (viewMode == "Edit") {
+    //   // Create a TextEditingController to manage the input
+    //   TextEditingController nameController =
+    //       TextEditingController(text: semester[index]["semester"]);
+    //
+    //   // Show an AlertDialog for editing the subject name
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: const Text('Edit Semester Name'),
+    //         content: TextField(
+    //           controller: nameController,
+    //           decoration:
+    //               const InputDecoration(hintText: 'Enter new semester name'),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () => Navigator.of(context).pop(),
+    //             // Close the dialog
+    //             child: const Text('Cancel'),
+    //           ),
+    //           TextButton(
+    //             onPressed: () {
+    //               // Update the subject name
+    //               setState(() {
+    //                 semester[index]["semester"] =
+    //                     nameController.text; // Update the name in the list
+    //               });
+    //               Navigator.of(context).pop(); // Close the dialog
+    //             },
+    //             child: const Text('Save'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    // }
   }
 
   handleDoubleClick(BuildContext context, int index) {
     if (viewMode == "Edit") {
-      if (chapters[index]["Visibility"] == "false") {
+      if (semester[index]["Visibility"] == "false") {
         // Show an AlertDialog for editing the subject name
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Un-Restrict PDF'),
+              title: const Text('Un-Restrict semester'),
               content: const Text(
-                  "Are you sure you want to Un-Restrict this PDF..?"),
+                  "Are you sure you want to Un-Restrict this semester..?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -200,10 +118,16 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                   child: const Text('No'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    chapters[index]["Visibility"] = "true";
-                    Navigator.of(context).pop(); // Close the dialog
-                    setState(() {});
+                  onPressed: () async {
+                    final updatedData = {"Visibility": "true"};
+                    final userRef = FirebaseDatabase.instance
+                        .ref()
+                        .child("ProgrammerProdigies/tblSemester")
+                        .child(semester[index]["key"]);
+                    await userRef.update(updatedData);
+                    Navigator.of(context).pop();
+                    setState(() {
+                    });
                   },
                   child: const Text('Yes'),
                 ),
@@ -211,15 +135,15 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
             );
           },
         );
-      } else if (chapters[index]["Visibility"] == "true") {
+      } else if (semester[index]["Visibility"] == "true") {
         // Show an AlertDialog for editing the subject name
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Restrict PDF'),
-              content:
-                  const Text("Are you sure you want to Restrict this PDF..?"),
+              title: const Text('Restrict semester'),
+              content: const Text(
+                  "Are you sure you want to Restrict this semester..?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -227,10 +151,17 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                   child: const Text('No'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    chapters[index]["Visibility"] = "false";
+                  onPressed: () async {
+                    final updatedData = {"Visibility": "false"};
+                    final userRef = FirebaseDatabase.instance
+                        .ref()
+                        .child("ProgrammerProdigies/tblSemester")
+                        .child(semester[index]["key"]);
+                    await userRef.update(updatedData);
+                    // semester[index]["Visibility"] = "false";
                     Navigator.of(context).pop(); // Close the dialog
-                    setState(() {});
+                    setState(() {
+                    });
                   },
                   child: const Text('Yes'),
                 ),
@@ -244,7 +175,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Delete Subject...!!'),
+            title: const Text('Restrict Semester...!!'),
             content: const Text(
                 "You are not in edit mode. Please start edit mode from top right side."),
             actions: [
@@ -266,18 +197,11 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
     final icon = viewMode == "Normal"
         ? FontAwesomeIcons.userPen
         : FontAwesomeIcons.check;
-
-    // Filter chapters based on the subjectKey
-    List<Map> filteredChapters = chapters
-        .where(
-            (chapter) => chapter["SubjectKey"] == widget.subjectKey.toString())
-        .toList();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Admin Chapters page",
+          "Admin Semester page",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -289,12 +213,12 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
         ],
       ),
       body: FutureBuilder<List<Map>>(
-        future: getPackagesData(),
+        future: getSemesterData(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            if (filteredChapters.isNotEmpty) {
+            if (semester.isNotEmpty) {
               return Container(
                 padding: const EdgeInsets.all(10),
                 child: GridView.builder(
@@ -305,13 +229,9 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 8,
                   ),
-                  itemCount: filteredChapters.length,
+                  itemCount: semester.length,
                   itemBuilder: (context, index) {
-                    final chapter = filteredChapters[index];
-                    final subject = subjects.firstWhere(
-                      (sub) => sub["key"] == chapter["SubjectKey"],
-                      orElse: () => {},
-                    );
+                    final chapter = semester[index];
                     return InkWell(
                       onTap: () => handleCardTap(context, index),
                       onLongPress: () {
@@ -320,9 +240,9 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text('Delete Chapter...!!'),
+                                title: const Text('Delete Semester...!!'),
                                 content: Text(
-                                    "Are you sure you want to delete ${chapter["ChapterName"]}?"),
+                                    "Are you sure you want to delete ${chapter["Semester"]}?"),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
@@ -332,10 +252,10 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                   TextButton(
                                     onPressed: () {
                                       setState(() {
-                                        chapters.removeWhere(
+                                        semester.removeWhere(
                                           (ch) =>
                                               ch["key"] ==
-                                              chapters[index]["key"],
+                                              semester[index]["key"],
                                         );
                                       });
                                       Navigator.of(context).pop();
@@ -368,8 +288,8 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                         }
                       },
                       onDoubleTap: () {
+                        handleDoubleClick(context, index);
                         setState(() {
-                          handleDoubleClick(context, index);
                         });
                       },
                       child: Stack(
@@ -402,56 +322,19 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                               0.3,
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 4),
                                                 child: Text(
-                                                  "Semester: ${subject["semester"]}",
+                                                  "Semester: ${semester[index]["Semester"]}",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
                                                   ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
-                                                child: Text(
-                                                  "Subject: ${subject["subject"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.025,
-                                                child: Text(
-                                                  "Chapters: ${chapter["ChapterName"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                  softWrap: true,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.025,
-                                                child: Text(
-                                                  "PDF Name: ${pdfs[index]["PdfName"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                  softWrap: true,
                                                 ),
                                               ),
                                             ],
@@ -515,7 +398,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'No Chapters found',
+                      'No Semesters found',
                       style: TextStyle(fontSize: 25),
                       textAlign: TextAlign.center,
                     ),
@@ -529,7 +412,50 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          TextEditingController semesterController = TextEditingController();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text('Add Semester'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: semesterController,
+                          decoration:
+                              const InputDecoration(hintText: 'Add Semester'),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          var semesterName = semesterController.text;
+                          SemesterModel sModel =
+                              SemesterModel(semesterName, "false");
+                          dbRef.push().set(sModel.toJson());
+                          setState(() {
+                            semesterFuture = getSemesterData();
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Add'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          );
+        },
         backgroundColor: const Color(0xff2a446b),
         tooltip: "Add New Chapter.",
         child: const Icon(

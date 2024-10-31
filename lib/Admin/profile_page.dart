@@ -28,12 +28,21 @@ class _AdminProfilePageAndStudentAddPageState
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const LoginPage()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()));
             },
             child: const Text("Logout"),
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: const Color(0xff2a446b),
+        tooltip: "Add New Student.",
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }

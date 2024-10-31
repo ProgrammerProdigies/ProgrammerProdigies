@@ -1,14 +1,16 @@
-class SemModel {
+class SemesterModel {
   late String sem;
+  late String visible;
 
-  SemModel(this.sem);
+  SemesterModel(this.sem, this.visible);
 
   Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
-        'Sem': sem,
+        'Semester': sem,
+        'Visibility': visible,
       };
 
   @override
   String toString() {
-    return 'SemModel{sem: $sem}';
+    return 'SemModel{sem: $sem, Visibility: $visible}';
   }
 }

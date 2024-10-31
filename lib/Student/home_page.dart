@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/chapters_page.dart';
 import 'package:programmer_prodigies/Student/chapters_page.dart';
 
 class StudentHomePage extends StatefulWidget {
@@ -27,12 +26,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   void handleCardTap(BuildContext context, int index) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => StudentChaptersPage(subjects[index]["key"]),
-        ),
-      );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentChaptersPage(subjects[index]["key"]),
+      ),
+    );
   }
 
   @override

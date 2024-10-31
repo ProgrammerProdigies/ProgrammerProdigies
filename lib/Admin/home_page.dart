@@ -4,7 +4,9 @@ import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Admin/chapters_page.dart';
 
 class AdminHomePage extends StatefulWidget {
-  const AdminHomePage({super.key});
+  final String semester;
+
+  const AdminHomePage(this.semester, {super.key});
 
   @override
   State<AdminHomePage> createState() => _AdminHomePageState();
@@ -12,12 +14,21 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   List<Map> subjects = [
-    {"key": "1","semester":"1", "subject": "OS"},
-    {"key": "2","semester":"2", "subject": "CPPM"},
-    {"key": "3","semester":"3", "subject": ".Net"},
-    {"key": "4","semester":"4", "subject": "WDC"},
-    {"key": "5","semester":"5", "subject": "Java"},
-    {"key": "6","semester":"6", "subject": "Networking"},
+    {"key": "1", "semester": "1", "subject": "OS"},
+    {"key": "2", "semester": "1", "subject": "CPPM"},
+    {"key": "3", "semester": "3", "subject": ".Net"},
+    {"key": "4", "semester": "3", "subject": "WDC"},
+    {"key": "5", "semester": "5", "subject": "Java"},
+    {"key": "6", "semester": "5", "subject": "Networking"},
+  ];
+
+  List<Map> semester = [
+    {"key": "1", "semester": "Semester 1", "Visibility": "true"},
+    {"key": "2", "semester": "Semester 2", "Visibility": "false"},
+    {"key": "3", "semester": "Semester 3", "Visibility": "true"},
+    {"key": "4", "semester": "Semester 4", "Visibility": "false"},
+    {"key": "5", "semester": "Semester 5", "Visibility": "true"},
+    {"key": "6", "semester": "Semester 6", "Visibility": "false"},
   ];
 
   String viewMode = "Normal";
@@ -86,6 +97,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
         ? FontAwesomeIcons.userPen
         : FontAwesomeIcons.check;
 
+    // Filter chapters based on the subjectKey
+    List<Map> filteredSubjects = subjects
+        .where((subject) => subject["semester"] == widget.semester)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
@@ -107,7 +123,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            if (subjects.isNotEmpty) {
+            if (filteredSubjects.isNotEmpty) {
               return GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -115,30 +131,30 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                 ),
-                itemCount: subjects.length,
+                itemCount: filteredSubjects.length,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () => handleCardTap(context, index),
                     onLongPress: () {
-                      if(viewMode == "Edit") {
+                      if (viewMode == "Edit") {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Delete Chapter...!!'),
+                              title: const Text('Delete Subject...!!'),
                               content: Text(
-                                  "Are you sure you want to delete ${subjects[index]["subject"]}?"),
+                                  "Are you sure you want to delete ${filteredSubjects[index]["subject"]} subject?"),
                               actions: [
                                 TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(),
+                                  onPressed: () => Navigator.of(context).pop(),
                                   child: const Text('Cancel'),
                                 ),
                                 TextButton(
                                   onPressed: () {
                                     setState(() {
                                       subjects.removeWhere(
-                                            (ch) => ch["key"] == subjects[index]["key"],
+                                        (ch) =>
+                                            ch["key"] == filteredSubjects[index]["key"],
                                       );
                                     });
                                     Navigator.of(context).pop();
@@ -154,8 +170,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Delete Subject...!!'),
-                              content: const Text("You are not in edit mode. Please start edit mode from top right side."),
+                              title: const Text('Edit Subject...!!'),
+                              content: const Text(
+                                  "You are not in edit mode. Please start edit mode from top right side."),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -194,7 +211,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        "Semester: ${subjects[index]["semester"]}",
+                                        "Semester: ${filteredSubjects[index]["semester"]}",
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,
@@ -204,7 +221,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        subjects[index]["subject"],
+                                        filteredSubjects[index]["subject"],
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,
@@ -247,6 +264,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
             return const Center(child: CircularProgressIndicator());
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: const Color(0xff2a446b),
+        tooltip: "Add New subject.",
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }

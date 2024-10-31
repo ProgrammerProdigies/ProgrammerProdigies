@@ -85,7 +85,6 @@ class _StudentViewChapterPDFState extends State<StudentViewChapterPDF> {
   @override
   Widget build(BuildContext context) {
     FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    print("pdfUrl is $pdfUrl");
     return Scaffold(
       appBar: AppBar(
         title: Text(chapterName),

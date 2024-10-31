@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
@@ -20,8 +21,25 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController controllerPassword = TextEditingController();
   bool isPasswordVisible = false;
 
+  // final _messagingService = MessagingService();
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  late String? fcmToken = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    // await _messagingService.init(context);
+    fcmToken = await _fcm.getToken();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _loadUserData();
+    print(fcmToken);
     return SafeArea(
       minimum: const EdgeInsets.only(top: 16.0),
       child: Scaffold(
@@ -87,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                                         controller: controllerUname,
                                         validator: (value) {
                                           if (value!.isEmpty) {
-                                            return 'Please enter username';
+                                            return 'Please enter email';
                                           }
                                           return null;
                                         },
@@ -95,10 +113,10 @@ class _LoginPageState extends State<LoginPage> {
                                           prefixIcon: Icon(Icons.email_outlined,
                                               color: Color(0xff2a446b)),
                                           prefixIconColor: Color(0xff2a446b),
-                                          labelText: 'Username',
+                                          labelText: 'Email',
                                           filled: true,
                                           fillColor: Colors.white,
-                                          hintText: 'Enter Username',
+                                          hintText: 'Enter Email',
                                         ),
                                       ),
                                       const SizedBox(
@@ -213,8 +231,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const RegistrationPage()),
+                                                    builder: (context) =>
+                                                        const RegistrationPage(),
+                                                  ),
                                                 );
                                               },
                                               child: const Text(

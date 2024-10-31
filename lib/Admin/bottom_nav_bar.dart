@@ -2,9 +2,9 @@
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/home_page.dart';
 import 'package:programmer_prodigies/Admin/profile_page.dart';
 import 'package:programmer_prodigies/Admin/registration_request.dart';
+import 'package:programmer_prodigies/Admin/semester_page.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -31,7 +31,7 @@ class _BottomBarState extends State<BottomBar> {
     _widgetOptions = <Widget>[
       const Scaffold(
         backgroundColor: Colors.white,
-        body: AdminHomePage(
+        body: AdminSemesterPage(
             // firstname: firstName,
             ),
       ),
