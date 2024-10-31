@@ -43,16 +43,16 @@ class _StudentHomePageState extends State<StudentHomePage> {
           "Student Subjects page",
           style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>   const UserProfilePage(),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const UserProfilePage(),
+              //   ),
+              // );
             },
             icon: const Icon(Icons.person), // Profile icon
           ),
