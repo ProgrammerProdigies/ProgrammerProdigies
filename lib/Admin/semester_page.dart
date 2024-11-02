@@ -1,8 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/home_page.dart';
+import 'package:programmer_prodigies/Admin/subject_page.dart';
 import 'package:programmer_prodigies/Models/sem_model.dart';
 
 class AdminSemesterPage extends StatefulWidget {
@@ -20,12 +22,6 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
       FirebaseDatabase.instance.ref().child("ProgrammerProdigies/tblSemester");
 
   String viewMode = "Normal";
-
-  @override
-  void initState() {
-    super.initState();
-    getSemesterData();
-  }
 
   Future<List<Map>> getSemesterData() async {
     semester.clear();
@@ -56,7 +52,7 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminHomePage(semester[index]["key"]),
+          builder: (context) => AdminSubjectPage(semester[index]["key"]),
         ),
       );
     }

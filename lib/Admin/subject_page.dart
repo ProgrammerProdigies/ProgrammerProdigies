@@ -1,39 +1,48 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:programmer_prodigies/Admin/add_new_subject.dart';
 import 'package:programmer_prodigies/Admin/chapters_page.dart';
 
-class AdminHomePage extends StatefulWidget {
+class AdminSubjectPage extends StatefulWidget {
   final String semester;
 
-  const AdminHomePage(this.semester, {super.key});
+  const AdminSubjectPage(this.semester, {super.key});
 
   @override
-  State<AdminHomePage> createState() => _AdminHomePageState();
+  State<AdminSubjectPage> createState() => _AdminSubjectPageState();
 }
 
-class _AdminHomePageState extends State<AdminHomePage> {
-  List<Map> subjects = [
-    {"key": "1", "semester": "1", "subject": "OS"},
-    {"key": "2", "semester": "1", "subject": "CPPM"},
-    {"key": "3", "semester": "3", "subject": ".Net"},
-    {"key": "4", "semester": "3", "subject": "WDC"},
-    {"key": "5", "semester": "5", "subject": "Java"},
-    {"key": "6", "semester": "5", "subject": "Networking"},
-  ];
+class _AdminSubjectPageState extends State<AdminSubjectPage> {
+  List<Map> subjects = [];
 
-  List<Map> semester = [
-    {"key": "1", "semester": "Semester 1", "Visibility": "true"},
-    {"key": "2", "semester": "Semester 2", "Visibility": "false"},
-    {"key": "3", "semester": "Semester 3", "Visibility": "true"},
-    {"key": "4", "semester": "Semester 4", "Visibility": "false"},
-    {"key": "5", "semester": "Semester 5", "Visibility": "true"},
-    {"key": "6", "semester": "Semester 6", "Visibility": "false"},
-  ];
+  List<Map> semester = [];
+  late List<Map> filteredSubjects;
 
   String viewMode = "Normal";
+  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
+
 
   Future<List<Map>> getPackagesData() async {
+    subjects.clear();
+    await dbRef.once().then((event) {
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+      if (values != null) {
+        values.forEach((key, value) {
+          subjects.add({
+            "key": key,
+            "Semester":value["Semester"],
+            "Subject": value["SubjectName"],
+            "Category": value["Category"],
+          });
+        });
+        // subjects.sort((a, b) => a["Semester"].compareTo(b["Semester"]));
+      }
+    });
+    setState(() {
+
+    });
     return subjects;
   }
 
@@ -48,13 +57,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminChaptersPage(subjects[index]["key"]),
+          builder: (context) => AdminChaptersPage(filteredSubjects[index]["key"]),
         ),
       );
     } else if (viewMode == "Edit") {
       // Create a TextEditingController to manage the input
       TextEditingController nameController =
-          TextEditingController(text: subjects[index]["subject"]);
+          TextEditingController(text: filteredSubjects[index]["Subject"]);
 
       // Show an AlertDialog for editing the subject name
       showDialog(
@@ -98,8 +107,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
         : FontAwesomeIcons.check;
 
     // Filter chapters based on the subjectKey
-    List<Map> filteredSubjects = subjects
-        .where((subject) => subject["semester"] == widget.semester)
+    filteredSubjects = subjects
+        .where((subject) => subject["Semester"] == widget.semester)
         .toList();
 
     return Scaffold(
@@ -211,7 +220,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        "Semester: ${filteredSubjects[index]["semester"]}",
+                                        "Subject name: ${filteredSubjects[index]["Subject"]}",
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,
@@ -221,7 +230,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        filteredSubjects[index]["subject"],
+                                        "Category: ${filteredSubjects[index]["Category"]}",
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,
@@ -266,7 +275,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>AdminAddNewSubject(widget.semester)));
+        },
         backgroundColor: const Color(0xff2a446b),
         tooltip: "Add New subject.",
         child: const Icon(

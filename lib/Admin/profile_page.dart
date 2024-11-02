@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../Common/login_page.dart';
+import '../../Common/login_page.dart';
 
 class AdminProfilePageAndStudentAddPage extends StatefulWidget {
   const AdminProfilePageAndStudentAddPage({super.key});
@@ -12,6 +11,12 @@ class AdminProfilePageAndStudentAddPage extends StatefulWidget {
 
 class _AdminProfilePageAndStudentAddPageState
     extends State<AdminProfilePageAndStudentAddPage> {
+  final Map<String, String> profileData = {
+    'name': 'Admin',
+    'email': 'admin@example.com',
+    'phone': '+1234567890',
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,26 +27,131 @@ class _AdminProfilePageAndStudentAddPageState
         ),
         backgroundColor: const Color(0xff2a446b),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()));
-            },
-            child: const Text("Logout"),
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color(0xff2a446b),
-        tooltip: "Add New Student.",
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: double.maxFinite,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                margin: const EdgeInsets.all(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.blueGrey,
+                        child: Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Name Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Name:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            profileData['name']!,
+                            style: const TextStyle(
+                              fontSize: 24,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Divider(color: Colors.grey[300]),
+
+                      // Email Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Email:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            profileData['email']!,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Divider(color: Colors.grey[300]),
+
+                      // Phone Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Phone:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            profileData['phone']!,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Divider(color: Colors.grey[300]),
+
+                      const SizedBox(height: 16), // Adjusted height for spacing
+
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff2a446b),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

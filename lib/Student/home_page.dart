@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Student/chapters_page.dart';
+import 'package:programmer_prodigies/Student/profile_page.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -47,12 +48,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
         actions: [
           IconButton(
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const UserProfilePage(),
-              //   ),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserProfilePage(),
+                ),
+              );
             },
             icon: const Icon(Icons.person), // Profile icon
           ),

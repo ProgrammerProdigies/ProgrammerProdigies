@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
@@ -24,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   // final _messagingService = MessagingService();
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   late String? fcmToken = "";
+  List<Map<String, dynamic>> displaySemesterMap = [];
 
   @override
   void initState() {
@@ -36,10 +38,36 @@ class _LoginPageState extends State<LoginPage> {
     fcmToken = await _fcm.getToken();
   }
 
+  Future<List<Map>> getSemesterData() async {
+    DatabaseReference dbRefSemester = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblSemester');
+    displaySemesterMap.clear();
+    displaySemesterMap
+        .add({"key": "0", "Semester": "Select Semester", "Visibility": "true"});
+    await dbRefSemester.once().then((event) {
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+      if (values != null) {
+        values.forEach((key, value) {
+          if (value["Visibility"] == "true") {
+            displaySemesterMap.add({
+              "key": key,
+              "Semester": value["Semester"],
+              "Visibility": value["Visibility"],
+            });
+          }
+        });
+        displaySemesterMap
+            .sort((a, b) => a["Semester"].compareTo(b["Semester"]));
+      }
+    });
+    return displaySemesterMap;
+  }
+
   @override
   Widget build(BuildContext context) {
     _loadUserData();
-    print(fcmToken);
+    getSemesterData();
     return SafeArea(
       minimum: const EdgeInsets.only(top: 16.0),
       child: Scaffold(
@@ -232,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const RegistrationPage(),
+                                                        RegistrationPage(displaySemesterMap),
                                                   ),
                                                 );
                                               },
@@ -294,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
     if (username == "a") {
       Navigator.pop(scaffoldContext);
       Navigator.push(scaffoldContext,
-          MaterialPageRoute(builder: (scaffoldContext) => const BottomBar()));
+          MaterialPageRoute(builder: (scaffoldContext) => const BottomBar(0)));
     }
     // var password = controllerPassword.text;
     // var encPassword = encryptString(password);

@@ -13,12 +13,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
     'name': 'Shubham',
     'email': 'shubham@example.com',
     'phone': '+1234567890',
-    'bio': 'Flutter developer with a passion for creating beautiful applications.'
+    'sem': 'Flutter developer with a passion for creating beautiful applications.'
   };
 
   @override
   Widget build(BuildContext context) {
-    print("Building UserProfilePage");
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -123,7 +122,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Bio:',
+                      'Sem:',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -131,7 +130,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     Expanded(
                       child: Text(
-                        profileData['bio']!,
+                        profileData['sem']!,
                         textAlign: TextAlign.right,
                         style: const TextStyle(
                           fontSize: 16,
@@ -144,6 +143,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.pop(context);
                     Navigator.pop(context);
                     Navigator.push(
                       context,
