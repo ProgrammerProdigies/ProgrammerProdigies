@@ -1,103 +1,87 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Student/view_pdf.dart';
 
 class StudentChaptersPage extends StatefulWidget {
   final String subjectKey;
+  final String subjectName;
+  final String studentSemester;
 
-  const StudentChaptersPage(this.subjectKey, {super.key});
+  const StudentChaptersPage(this.subjectKey, this.subjectName,this.studentSemester,{super.key});
 
   @override
   State<StudentChaptersPage> createState() => _StudentChaptersPageState();
 }
 
 class _StudentChaptersPageState extends State<StudentChaptersPage> {
-  List<Map> subjects = [
-    {"key": "1", "semester": "1", "subject": "OS"},
-    {"key": "2", "semester": "2", "subject": "CPPM"},
-    {"key": "3", "semester": "3", "subject": ".Net"},
-    {"key": "4", "semester": "4", "subject": "WDC"},
-    {"key": "5", "semester": "5", "subject": "Java"},
-    {"key": "6", "semester": "6", "subject": "Networking"},
-  ];
+  List<Map> chapters = [];
+  List<Map> semester = [];
 
-  List<Map> chapters = [
-    {
-      "key": "1",
-      "SubjectKey": "1",
-      "ChapterName": "OS Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "2",
-      "SubjectKey": "1",
-      "ChapterName": "OS Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "3",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "4",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "5",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "6",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Basic concepts",
-      "Visibility": "true"
-    },
-    {
-      "key": "7",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "8",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Basic concepts",
-      "Visibility": "true"
-    },
-  ];
+  List<Map> filteredChapters = [];
+  List<Map> filteredSemester = [];
+
+  Object? data;
 
   Future<List<Map>> getPackagesData() async {
+    getSemester();
+    chapters.clear();
+    Query dbRef = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblChapters');
+
+    await dbRef.once().then((event) {
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+      if (values != null) {
+        values.forEach((key, value) {
+          chapters.add({
+            "key": key,
+            "ChapterName": value["ChapterName"],
+            "PDFName": value["PDFName"],
+            "Visibility": value["Visibility"],
+            "SubjectKey": value["SubjectKey"],
+          });
+        });
+      }
+    });
+    filteredChapters = chapters
+        .where((chapter) =>
+    chapter["SubjectKey"] == widget.subjectKey.toString() &&
+        chapter["Visibility"] == true)
+        .toList();
     return chapters;
+  }
+
+  Future<void> getSemester() async {
+    Query dbRef = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblSemester/${widget.studentSemester}');
+    DatabaseEvent databaseEventStudent = await dbRef.once();
+    DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
+    for(var x in dataSnapshotStudent.children){
+      data = x.value;
+      if(data.toString().contains("Semester")){
+        break;
+      }
+    }
   }
 
   void handleCardTap(BuildContext context, int index) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StudentViewChapterPDF(chapters[index]["key"]),
+        builder: (context) => StudentViewChapterPDF(chapters[index]["PDFName"]),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Map> filteredChapters = chapters
-        .where((chapter) =>
-            chapter["SubjectKey"] == widget.subjectKey.toString() &&
-            chapter["Visibility"] == "true")
-        .toList();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Student Chapters page",
+          "Chapters",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -122,10 +106,7 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                   itemCount: filteredChapters.length,
                   itemBuilder: (context, index) {
                     final chapter = filteredChapters[index];
-                    final subject = subjects.firstWhere(
-                      (sub) => sub["key"] == chapter["SubjectKey"],
-                      orElse: () => {},
-                    );
+                    print("semester $semester");
                     return InkWell(
                       onTap: () => handleCardTap(context, index),
                       child: Stack(
@@ -143,7 +124,8 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                 children: [
                                   Image.asset(
                                     "assets/Logo/Programmer.png",
-                                    width: MediaQuery.of(context).size.width * 0.27,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.27,
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -151,15 +133,19 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                       Padding(
                                         padding: const EdgeInsets.all(5),
                                         child: SizedBox(
-                                          height: MediaQuery.of(context).size.width * 0.2,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.2,
                                           child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(bottom: 4),
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 4),
                                                 child: Text(
-                                                  "Semester: ${subject["semester"]}",
+                                                  "Semester: $data",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
@@ -167,9 +153,10 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.only(bottom: 4),
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 4),
                                                 child: Text(
-                                                  "Subject: ${subject["subject"]}",
+                                                  "Subject: ${widget.subjectName}",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
@@ -177,7 +164,10 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                height: MediaQuery.of(context).size.height * 0.03,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.03,
                                                 child: Text(
                                                   "Chapters: ${chapter["ChapterName"]}",
                                                   style: const TextStyle(

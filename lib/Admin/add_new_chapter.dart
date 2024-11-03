@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -108,8 +110,7 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
       await ref.putFile(file);
       pdfName = fileName;
     } catch (e) {
-      print('Error uploading file: $e');
-      throw e; // Propagate the error
+      rethrow; // Propagate the error
     }
   }
 

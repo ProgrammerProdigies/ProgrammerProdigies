@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -14,8 +16,6 @@ class StudentHomePage extends StatefulWidget {
 
 class _StudentHomePageState extends State<StudentHomePage> {
   List<Map> subjects = [];
-
-  List<Map> semester = [];
   List<Map> filteredSubjects = [];
   var filteredTheorySubjects = [];
   var filteredPracticalSubjects = [];
@@ -31,26 +31,24 @@ class _StudentHomePageState extends State<StudentHomePage> {
   DatabaseReference dbRef =
       FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
 
-
   Future<List<Map>> getPackagesData() async {
     finalSubjects.clear();
     studentSemester = (await getData("Semester"))!;
     var Theory = (await getData("Theory"))!;
     var Practical = (await getData("Practical"))!;
     var Papers = (await getData("Papers"))!;
-    var key = await getKey();
 
-    if(Theory == "true"){
+    if (Theory == "true") {
       theory = true;
     } else {
       theory = false;
     }
-    if(Practical == "true"){
+    if (Practical == "true") {
       practical = true;
     } else {
       practical = false;
     }
-    if(Papers == "true"){
+    if (Papers == "true") {
       papers = true;
     } else {
       papers = false;
@@ -80,43 +78,33 @@ class _StudentHomePageState extends State<StudentHomePage> {
     filteredTheorySubjects = filteredSubjects
         .where((subject) => subject["Category"] == "Theory")
         .toList();
-    print(theory);
-    if(theory){
-      finalSubjects = [
-        ...filteredTheorySubjects
-      ];
+    if (theory) {
+      finalSubjects = [...filteredTheorySubjects];
     }
 
     filteredPracticalSubjects = filteredSubjects
         .where((subject) => subject["Category"] == "Practical")
         .toList();
 
-    if(practical){
+    if (practical) {
       // Second filter by Category Practical
       finalSubjects = [
         ...filteredPracticalSubjects,
       ];
-      print("filteredPracticalSubjects $filteredPracticalSubjects");
     }
 
     // Second filter by Category papers
     filteredPapersSubjects = filteredSubjects
         .where((subject) => subject["Category"] == "Papers")
         .toList();
-    print(papers);
-    if(papers){
+    if (papers) {
       finalSubjects = [
         ...filteredPapersSubjects,
       ];
-      print("filteredPapersSubjects $filteredPapersSubjects");
     }
-
-    print("finalSubjects ${finalSubjects}");
 
     return finalSubjects;
   }
-
-
 
   void toggleViewMode() {
     setState(() {
@@ -125,52 +113,13 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   void handleCardTap(BuildContext context, int index) {
-    if (viewMode == "Normal") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              StudentChaptersPage(filteredSubjects[index]["key"]),
-        ),
-      );
-    } else if (viewMode == "Edit") {
-      // Create a TextEditingController to manage the input
-      TextEditingController nameController =
-          TextEditingController(text: filteredSubjects[index]["Subject"]);
-
-      // Show an AlertDialog for editing the subject name
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Edit Subject Name'),
-            content: TextField(
-              controller: nameController,
-              decoration:
-                  const InputDecoration(hintText: 'Enter new subject name'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                // Close the dialog
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Update the subject name
-                  setState(() {
-                    filteredSubjects[index]["subject"] =
-                        nameController.text; // Update the name in the list
-                  });
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            StudentChaptersPage(finalSubjects[index]["key"], finalSubjects[index]["Subject"], studentSemester),
+      ),
+    );
   }
 
   @override
@@ -179,7 +128,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Student Subjects page",
+          "Subjects",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -216,58 +165,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () => handleCardTap(context, index),
-                    onLongPress: () {
-                      if (viewMode == "Edit") {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Delete Subject...!!'),
-                              content: Text(
-                                  "Are you sure you want to delete ${filteredSubjects[index]["subject"]} subject?"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      filteredSubjects.removeWhere(
-                                            (ch) =>
-                                        ch["key"] ==
-                                            filteredSubjects[index]["key"],
-                                      );
-                                    });
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Yes'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Edit Subject...!!'),
-                              content: const Text(
-                                  "You are not in edit mode. Please start edit mode from top right side."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Ok'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
@@ -287,7 +184,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                               padding: const EdgeInsets.all(0),
                               child: SizedBox(
                                 height:
-                                MediaQuery.of(context).size.width * 0.15,
+                                    MediaQuery.of(context).size.width * 0.15,
                                 child: Column(
                                   children: [
                                     Padding(

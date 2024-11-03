@@ -220,7 +220,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        "Subject name: ${filteredSubjects[index]["Subject"]}",
+                                        filteredSubjects[index]["Subject"],
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,
@@ -230,7 +230,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                                     Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Text(
-                                        "Category: ${filteredSubjects[index]["Category"]}",
+                                        filteredSubjects[index]["Category"],
                                         style: const TextStyle(
                                           fontSize: 17,
                                           color: Colors.white,

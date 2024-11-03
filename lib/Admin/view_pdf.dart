@@ -32,7 +32,6 @@ class _AdminViewChapterPDFState extends State<AdminViewChapterPDF> {
 
   @override
   Widget build(BuildContext context) {
-    print(pdfUrl);
     FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     return Scaffold(
       appBar: AppBar(

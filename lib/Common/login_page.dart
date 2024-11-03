@@ -376,23 +376,6 @@ class _LoginPageState extends State<LoginPage> {
           } else if (FCMToken != fcmToken) {
             msg =
                 "You already have logged in some other phone, you can not login with this device.";
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return AlertDialog(
-            //       title: const Text("Alert Message"),
-            //       content: Text(msg.toString()),
-            //       actions: <Widget>[
-            //         OutlinedButton(
-            //           child: const Text('OK'),
-            //           onPressed: () {
-            //             Navigator.of(context).pop();
-            //           },
-            //         )
-            //       ],
-            //     );
-            //   },
-            // );
           }
         }
         if (count == 0) {
@@ -416,63 +399,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       });
     }
-    // if (email == "s") {
-    //   Navigator.pop(scaffoldContext);
-    //   Navigator.push(
-    //       scaffoldContext,
-    //       MaterialPageRoute(
-    //           builder: (scaffoldContext) => const StudentHomePage()));
-    // }
-    // var password = controllerPassword.text;
-    // var encPassword = encryptString(password);
-    // Query dbRef2 = FirebaseDatabase.instance
-    //     .ref()
-    //     .child('ArogyaSair/tblUser')
-    //     .orderByChild("email")
-    //     .equalTo(email);
-    // String msg = "Invalid email or Password..! Please check..!!";
-    // Map data;
-    // var count = 0;
-    // await dbRef2.once().then((documentSnapshot) async {
-    //   for (var x in documentSnapshot.snapshot.children) {
-    //     String? key = x.key;
-    //     data = x.value as Map;
-    //     if (data["email"] == email &&
-    //         data["Password"].toString() == encPassword) {
-    //       await saveData('email', data["email"]);
-    //       await saveData('firstname', data["FirstName"]);
-    //       await saveData('lastname', data["LastName"]);
-    //       await saveData('email', data["Email"]);
-    //       await saveData('key', key);
-    //       count = count + 1;
-    //       Navigator.pop(context);
-    //       Navigator.push(context,
-    //           MaterialPageRoute(builder: (context) => const BottomBar()));
-    //     } else {
-    //       msg = "Sorry..! Wrong email or Password";
-    //       _showSnackbar(scaffoldContext, msg);
-    //     }
-    //   }
-    //   if (count == 0) {
-    //     showDialog(
-    //       context: context,
-    //       builder: (context) {
-    //         return AlertDialog(
-    //           title: const Text("Alert Message"),
-    //           content: Text(msg.toString()),
-    //           actions: <Widget>[
-    //             OutlinedButton(
-    //               child: const Text('OK'),
-    //               onPressed: () {
-    //                 Navigator.of(context).pop();
-    //               },
-    //             )
-    //           ],
-    //         );
-    //       },
-    //     );
-    //   }
-    // });
   }
 }
 

@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
@@ -20,6 +20,7 @@ class AdminChaptersPage extends StatefulWidget {
 class _AdminChaptersPageState extends State<AdminChaptersPage> {
   DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
   DatabaseReference subjectRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
+  final FirebaseStorage storage = FirebaseStorage.instance;
 
   List<Map> subjects = [];
   List<Map> chapters = [];
@@ -40,7 +41,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           "key": entry.key,
           "SubjectKey": chapter["SubjectKey"],
           "chapterName": chapter["ChapterName"],
-          "PDFName":chapter["PDFName"],
+          "PDFName": chapter["PDFName"],
           "Visibility": chapter["Visibility"],
         });
       }
@@ -48,7 +49,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
 
     // Fetch subjects
     List<Map> subjectsData = await getSubjectsData();
-    Map<String, Map> subjectsMap = { for (var subject in subjectsData) subject['SubjectKey']: subject };
+    Map<String, Map> subjectsMap = {for (var subject in subjectsData) subject['SubjectKey']: subject};
 
     // Combine chapters with subject data
     for (var chapter in fetchedChapters) {
@@ -89,62 +90,39 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
     });
   }
 
-
-  handleDoubleClick(BuildContext context, int index) {
+  void handleDoubleClick(BuildContext context, int index) {
+    String chapterKey = chapters[index]["key"];
     if (viewMode == "Edit") {
-      if (chapters[index]["Visibility"] == "false") {
-        // Show an AlertDialog for editing the subject name
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Un-Restrict PDF'),
-              content: const Text("Are you sure you want to Un-Restrict this PDF..?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      chapters[index]["Visibility"] = "true";
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
-        );
-      } else if (chapters[index]["Visibility"] == "true") {
-        // Show an AlertDialog for editing the subject name
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Restrict PDF'),
-              content: const Text("Are you sure you want to Restrict this PDF..?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      chapters[index]["Visibility"] = "false";
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
-        );
-      }
+      String newVisibility = chapters[index]["Visibility"] == "false" ? "true" : "false";
+
+      // Show a confirmation dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(newVisibility == "true" ? 'Un-Restrict PDF' : 'Restrict PDF'),
+            content: Text("Are you sure you want to ${newVisibility == "true" ? 'Un-Restrict' : 'Restrict'} this PDF?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  // Update local state
+                  setState(() {
+                    chapters[index]["Visibility"] = newVisibility;
+                  });
+                  // Update in the database
+                  await dbRef.child(chapterKey).update({"Visibility": newVisibility});
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -156,7 +134,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
         title: const Text(
-          "Admin Chapters page",
+          "Admin Chapters Page",
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -202,23 +180,40 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Delete Chapter...!!'),
-                                content: Text(
-                                    "Are you sure you want to delete ${chapter["ChapterName"]}?"),
+                                content: Text("Are you sure you want to delete ${chapter["chapterName"]} and its PDF?"),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
+                                    onPressed: () => Navigator.of(context).pop(),
                                     child: const Text('Cancel'),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        chapters.removeWhere(
-                                              (ch) =>
-                                          ch["key"] ==
-                                              chapters[index]["key"],
+                                    onPressed: () async {
+                                      // Construct the path to the PDF in Firebase Storage
+                                      String pdfPath = 'ChapterPDF/${chapter["PDFName"]}';
+
+                                      try {
+                                        // Delete the PDF from Firebase Storage
+                                        await storage.ref(pdfPath).delete();
+
+                                        // Remove the chapter from the database
+                                        await dbRef.child(chapter["key"]).remove();
+
+                                        // Update local state
+                                        setState(() {
+                                          chapters.removeWhere((ch) => ch["key"] == chapter["key"]);
+                                        });
+
+                                        // Show a success message
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('${chapter["chapterName"]} deleted successfully.')),
                                         );
-                                      });
+                                      } catch (e) {
+                                        // Handle any errors here
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Error deleting chapter: $e')),
+                                        );
+                                      }
+
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text('Yes'),
@@ -228,13 +223,13 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                             },
                           );
                         } else {
+                          // Handle the case when not in edit mode
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: const Text('Edit Subject...!!'),
-                                content: const Text(
-                                    "You are not in edit mode. Please start edit mode from top right side."),
+                                content: const Text("You are not in edit mode. Please start edit mode from the top right side."),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -248,6 +243,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                           );
                         }
                       },
+
                       onDoubleTap: () {
                         setState(() {
                           handleDoubleClick(context, index);
@@ -268,8 +264,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                 children: [
                                   Image.asset(
                                     "assets/Logo/Programmer.png",
-                                    width: MediaQuery.of(context).size.width *
-                                        0.2,
+                                    width: MediaQuery.of(context).size.width * 0.2,
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -277,17 +272,12 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                       Padding(
                                         padding: const EdgeInsets.all(5),
                                         child: SizedBox(
-                                          height: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.25,
+                                          height: MediaQuery.of(context).size.width * 0.25,
                                           child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
+                                                padding: const EdgeInsets.only(bottom: 4),
                                                 child: Text(
                                                   "Subject: ${chapter["SubjectName"]}",
                                                   style: const TextStyle(
@@ -297,10 +287,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                    0.025,
+                                                height: MediaQuery.of(context).size.height * 0.025,
                                                 child: Text(
                                                   "Chapters: ${chapter["chapterName"]}",
                                                   style: const TextStyle(
@@ -311,10 +298,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                    0.025,
+                                                height: MediaQuery.of(context).size.height * 0.025,
                                                 child: Text(
                                                   "PDF Name: ${chapter["PDFName"]}",
                                                   style: const TextStyle(
@@ -335,12 +319,10 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                             ),
                           ),
                           if (chapter["Visibility"] == "false")
-                          // Overlay for restricted access
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.8),
-                                  // Dark overlay
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 child: const Center(
@@ -373,7 +355,25 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                 ),
               );
             } else {
-              return buildNoChaptersFound();
+              return Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Lottie.asset(
+                      'assets/Animation/no_data_found.json',
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Semesters found',
+                      style: TextStyle(fontSize: 25),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
             }
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -388,32 +388,23 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           );
         },
         backgroundColor: const Color(0xff2a446b),
-        tooltip: "Add New Chapter.",
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.add, color: Colors.white,),
       ),
     );
   }
 
   void handleCardTap(BuildContext context, int index) async {
-    TextEditingController nameController =
-    TextEditingController(text: chapters[index]["chapterName"]);
+    TextEditingController nameController = TextEditingController(text: chapters[index]["chapterName"]);
     String pdfName = '';
 
     if (viewMode == "Normal") {
-      // Pass chapterName to AdminViewChapterPDF
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminViewChapterPDF(
-              chapters[index]["PDFName"]// Pass chapterName
-          ),
+          builder: (context) => AdminViewChapterPDF(chapters[index]["PDFName"]),
         ),
       );
     } else if (viewMode == "Edit") {
-      // Existing code for edit mode
       File? pdfFile;
       showDialog(
         context: context,
@@ -427,9 +418,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter new chapter name'
-                      ),
+                      decoration: const InputDecoration(hintText: 'Enter new chapter name'),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton.icon(
@@ -465,10 +454,18 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                     child: const Text('Cancel'),
                   ),
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // Update local state
                       setState(() {
                         chapters[index]["chapterName"] = nameController.text;
-                        // Save the PDF name or upload it to storage here as needed
+                        if (pdfFile != null) {
+                          chapters[index]["PDFName"] = pdfName; // Update the local state with new PDF name
+                        }
+                      });
+                      // Update in the database
+                      await dbRef.child(chapters[index]["key"]).update({
+                        "ChapterName": nameController.text,
+                        if (pdfFile != null) "PDFName": pdfName, // Only update if a new file is selected
                       });
                       Navigator.of(context).pop();
                     },
@@ -481,27 +478,5 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
         },
       );
     }
-  }
-
-  Widget buildNoChaptersFound() {
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Lottie.asset(
-            'assets/Animation/no_data_found.json',
-            width: MediaQuery.of(context).size.width * 0.6,
-            height: MediaQuery.of(context).size.height * 0.3,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'No Chapters found',
-            style: TextStyle(fontSize: 25),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -15,15 +15,13 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  final Map<String, String> profileData = {
-    'name': 'Shubham',
-    'email': 'shubham@example.com',
-    'phone': '+1234567890',
-    'sem':
-        'Flutter developer with a passion for creating beautiful applications.'
-  };
 
-  var key;
+  var key = "";
+  var email = "";
+  var name = "";
+  var phone = "";
+  var semesterKey = "";
+  String semester = "";
 
   @override
   void initState() {
@@ -32,11 +30,44 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> loadUser() async {
-    key = await getData("key");
+    email = (await getData("StudentEmail"))!;
+    Query dbRef2 = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblStudent')
+        .orderByChild("Email")
+        .equalTo(email);
+    Map data;
+    await dbRef2.once().then((documentSnapshot) async {
+      for (var x in documentSnapshot.snapshot.children) {
+        data = x.value as Map;
+        name = "${data["FirstName"]} ${data["LastName"]}";
+        email = data["Email"];
+        phone = data["ContactNumber"];
+        semesterKey = data["Semester"];
+      }
+    });
+    getSemester();
+    setState(() {});
+  }
+
+  Future<void> getSemester() async {
+    Query dbRef = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblSemester/$semesterKey');
+    DatabaseEvent databaseEventStudent = await dbRef.once();
+    DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
+    for(var x in dataSnapshotStudent.children){
+      semester = x.value as String;
+      if(semester.toString().contains("Semester")){
+        break;
+      }
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    loadUser();
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -81,7 +112,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                     Text(
-                      profileData['name']!,
+                      name,
                       style: const TextStyle(
                         fontSize: 24,
                       ),
@@ -103,7 +134,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                     Text(
-                      profileData['email']!,
+                      email,
                       style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
@@ -126,7 +157,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                     Text(
-                      profileData['phone']!,
+                      phone,
                       style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
@@ -150,7 +181,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     Expanded(
                       child: Text(
-                        profileData['sem']!,
+                        semester,
                         textAlign: TextAlign.right,
                         style: const TextStyle(
                           fontSize: 16,
@@ -164,7 +195,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ElevatedButton(
                   onPressed: () async {
                     SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
+                    await SharedPreferences.getInstance();
                     prefs.clear();
                     final updatedData = {"FCMToken": ""};
                     final userRef = FirebaseDatabase.instance
