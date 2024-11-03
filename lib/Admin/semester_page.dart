@@ -230,59 +230,59 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
                     final chapter = semester[index];
                     return InkWell(
                       onTap: () => handleCardTap(context, index),
-                      onLongPress: () {
-                        if (viewMode == "Edit") {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Delete Semester...!!'),
-                                content: Text(
-                                    "Are you sure you want to delete ${chapter["Semester"]}?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        semester.removeWhere(
-                                          (ch) =>
-                                              ch["key"] ==
-                                              semester[index]["key"],
-                                        );
-                                      });
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Yes'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Edit Subject...!!'),
-                                content: const Text(
-                                    "You are not in edit mode. Please start edit mode from top right side."),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Ok'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      },
+                      // onLongPress: () {
+                      //   if (viewMode == "Edit") {
+                      //     showDialog(
+                      //       context: context,
+                      //       builder: (BuildContext context) {
+                      //         return AlertDialog(
+                      //           title: const Text('Delete Semester...!!'),
+                      //           content: Text(
+                      //               "Are you sure you want to delete ${chapter["Semester"]}?"),
+                      //           actions: [
+                      //             TextButton(
+                      //               onPressed: () =>
+                      //                   Navigator.of(context).pop(),
+                      //               child: const Text('Cancel'),
+                      //             ),
+                      //             TextButton(
+                      //               onPressed: () {
+                      //                 setState(() {
+                      //                   semester.removeWhere(
+                      //                     (ch) =>
+                      //                         ch["key"] ==
+                      //                         semester[index]["key"],
+                      //                   );
+                      //                 });
+                      //                 Navigator.of(context).pop();
+                      //               },
+                      //               child: const Text('Yes'),
+                      //             ),
+                      //           ],
+                      //         );
+                      //       },
+                      //     );
+                      //   } else {
+                      //     showDialog(
+                      //       context: context,
+                      //       builder: (BuildContext context) {
+                      //         return AlertDialog(
+                      //           title: const Text('Edit Subject...!!'),
+                      //           content: const Text(
+                      //               "You are not in edit mode. Please start edit mode from top right side."),
+                      //           actions: [
+                      //             TextButton(
+                      //               onPressed: () {
+                      //                 Navigator.of(context).pop();
+                      //               },
+                      //               child: const Text('Ok'),
+                      //             ),
+                      //           ],
+                      //         );
+                      //       },
+                      //     );
+                      //   }
+                      // },
                       onDoubleTap: () {
                         handleDoubleClick(context, index);
                         setState(() {

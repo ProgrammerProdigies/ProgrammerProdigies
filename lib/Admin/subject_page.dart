@@ -63,7 +63,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
     } else if (viewMode == "Edit") {
       // Create a TextEditingController to manage the input
       TextEditingController nameController =
-          TextEditingController(text: filteredSubjects[index]["Subject"]);
+      TextEditingController(text: filteredSubjects[index]["Subject"]);
 
       // Show an AlertDialog for editing the subject name
       showDialog(
@@ -74,7 +74,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
             content: TextField(
               controller: nameController,
               decoration:
-                  const InputDecoration(hintText: 'Enter new subject name'),
+              const InputDecoration(hintText: 'Enter new subject name'),
             ),
             actions: [
               TextButton(
@@ -162,8 +162,8 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                                   onPressed: () {
                                     setState(() {
                                       subjects.removeWhere(
-                                        (ch) =>
-                                            ch["key"] == filteredSubjects[index]["key"],
+                                            (ch) =>
+                                        ch["key"] == filteredSubjects[index]["key"],
                                       );
                                     });
                                     Navigator.of(context).pop();
@@ -214,7 +214,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                               padding: const EdgeInsets.all(5),
                               child: SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.width * 0.15,
+                                MediaQuery.of(context).size.width * 0.15,
                                 child: Column(
                                   children: [
                                     Padding(
