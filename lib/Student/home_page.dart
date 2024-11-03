@@ -1,7 +1,10 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Student/chapters_page.dart';
 import 'package:programmer_prodigies/Student/profile_page.dart';
+import 'package:programmer_prodigies/saveSharePreferences.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -26,6 +29,18 @@ class _StudentHomePageState extends State<StudentHomePage> {
     return subjects;
   }
 
+  var studentEmail;
+
+  @override
+  void initState(){
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    studentEmail = await getData("StudentEmail");
+  }
+
   void handleCardTap(BuildContext context, int index) {
     Navigator.push(
       context,
@@ -34,7 +49,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../Common/login_page.dart';
 
 class AdminProfilePageAndStudentAddPage extends StatefulWidget {
@@ -11,10 +15,9 @@ class AdminProfilePageAndStudentAddPage extends StatefulWidget {
 
 class _AdminProfilePageAndStudentAddPageState
     extends State<AdminProfilePageAndStudentAddPage> {
-  final Map<String, String> profileData = {
+  Map<String, String> profileData = {
     'name': 'Admin',
-    'email': 'admin@example.com',
-    'phone': '+1234567890',
+    'email': "programmerprodigies@gmail.com",
   };
 
   @override
@@ -31,7 +34,7 @@ class _AdminProfilePageAndStudentAddPageState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: double.maxFinite,
               child: Card(
                 elevation: 8,
@@ -100,42 +103,24 @@ class _AdminProfilePageAndStudentAddPageState
                       const SizedBox(height: 8),
                       Divider(color: Colors.grey[300]),
 
-                      // Phone Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Phone:',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            profileData['phone']!,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Divider(color: Colors.grey[300]),
-
                       const SizedBox(height: 16), // Adjusted height for spacing
 
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.clear();
                           Navigator.pop(context);
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xff2a446b),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                           elevation: 5,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),

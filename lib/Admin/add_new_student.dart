@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -383,7 +385,7 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                         contact,
                                         gender,
                                         semester!,
-                                        fcmToken!,
+                                        "",
                                         true, theory, practical, papers);
                                     dbRef.push().set(regobj.toJson());
                                     showDialog(

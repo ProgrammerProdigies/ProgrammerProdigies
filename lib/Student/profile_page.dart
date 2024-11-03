@@ -1,4 +1,10 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, use_build_context_synchronously
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../Common/login_page.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -13,8 +19,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
     'name': 'Shubham',
     'email': 'shubham@example.com',
     'phone': '+1234567890',
-    'sem': 'Flutter developer with a passion for creating beautiful applications.'
+    'sem':
+        'Flutter developer with a passion for creating beautiful applications.'
   };
+
+  var key;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    key = await getData("key");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +44,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color(0xff2a446b),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
         child: Card(
@@ -142,23 +162,37 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.clear();
+                    final updatedData = {"FCMToken": ""};
+                    final userRef = FirebaseDatabase.instance
+                        .ref()
+                        .child("ProgrammerProdigies/tblStudent")
+                        .child(key);
+                    await userRef.update(updatedData);
                     Navigator.pop(context);
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff2a446b),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text("Logout"),
+                  child: const Text(
+                    "Logout",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),

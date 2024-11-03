@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Admin/view_pdf.dart';
+import 'add_new_chapter.dart';
 
 class AdminChaptersPage extends StatefulWidget {
   final String subjectKey;
@@ -16,79 +18,69 @@ class AdminChaptersPage extends StatefulWidget {
 }
 
 class _AdminChaptersPageState extends State<AdminChaptersPage> {
-  List<Map> subjects = [
-    {"key": "1", "semester": "1", "subject": "OS"},
-    {"key": "2", "semester": "2", "subject": "CPPM"},
-    {"key": "3", "semester": "3", "subject": ".Net"},
-    {"key": "4", "semester": "4", "subject": "WDC"},
-    {"key": "5", "semester": "5", "subject": "Java"},
-    {"key": "6", "semester": "6", "subject": "Networking"},
-  ];
+  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+  DatabaseReference subjectRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
 
-  List<Map> chapters = [
-    {
-      "key": "1",
-      "SubjectKey": "1",
-      "ChapterName": "OS Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "2",
-      "SubjectKey": "1",
-      "ChapterName": "OS Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "3",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "4",
-      "SubjectKey": "2",
-      "ChapterName": "CPPM Basic concepts",
-      "Visibility": "false"
-    },
-    {
-      "key": "5",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "6",
-      "SubjectKey": "3",
-      "ChapterName": ".Net Basic concepts",
-      "Visibility": "true"
-    },
-    {
-      "key": "7",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Introduction",
-      "Visibility": "true"
-    },
-    {
-      "key": "8",
-      "SubjectKey": "4",
-      "ChapterName": "WDC Basic concepts",
-      "Visibility": "true"
-    },
-  ];
-
-  List<Map> pdfs = [
-    {"key": "1", "PdfName": "Book1", "ChapterName": "1"},
-    {"key": "2", "PdfName": "Book1", "ChapterName": "2"},
-    {"key": "3", "PdfName": "Book1", "ChapterName": "3"},
-    {"key": "4", "PdfName": "Book1", "ChapterName": "4"},
-    {"key": "5", "PdfName": "Book1", "ChapterName": "5"},
-    {"key": "6", "PdfName": "Book1", "ChapterName": "6"},
-  ];
-
+  List<Map> subjects = [];
+  List<Map> chapters = [];
   String viewMode = "Normal";
 
   Future<List<Map>> getPackagesData() async {
-    return chapters;
+    List<Map> fetchedChapters = [];
+
+    DatabaseEvent event = await dbRef.once();
+    DataSnapshot snapshot = event.snapshot;
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+
+      for (var entry in data.entries) {
+        var chapter = entry.value;
+        fetchedChapters.add({
+          "key": entry.key,
+          "SubjectKey": chapter["SubjectKey"],
+          "chapterName": chapter["ChapterName"],
+          "PDFName":chapter["PDFName"],
+          "Visibility": chapter["Visibility"],
+        });
+      }
+    }
+
+    // Fetch subjects
+    List<Map> subjectsData = await getSubjectsData();
+    Map<String, Map> subjectsMap = { for (var subject in subjectsData) subject['SubjectKey']: subject };
+
+    // Combine chapters with subject data
+    for (var chapter in fetchedChapters) {
+      if (subjectsMap.containsKey(chapter["SubjectKey"])) {
+        var subjectData = subjectsMap[chapter["SubjectKey"]];
+        chapter["Semester"] = subjectData?["Semester"];
+        chapter["SubjectName"] = subjectData?["SubjectName"];
+      }
+    }
+
+    return fetchedChapters;
+  }
+
+  Future<List<Map>> getSubjectsData() async {
+    List<Map> fetchedSubjects = [];
+
+    DatabaseEvent event = await subjectRef.once();
+    DataSnapshot snapshot = event.snapshot;
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+
+      data.forEach((key, value) {
+        fetchedSubjects.add({
+          "SubjectKey": key,
+          "Semester": value["Semester"],
+          "SubjectName": value["SubjectName"],
+        });
+      });
+    }
+
+    return fetchedSubjects;
   }
 
   void toggleViewMode() {
@@ -97,90 +89,6 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
     });
   }
 
-  void handleCardTap(BuildContext context, int index) async {
-    TextEditingController nameController =
-        TextEditingController(text: chapters[index]["ChapterName"]);
-    String pdfName = ''; // Variable to store the PDF file name
-
-    if (viewMode == "Normal") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AdminViewChapterPDF(chapters[index]["key"]),
-        ),
-      );
-    } else if (viewMode == "Edit") {
-      File? pdfFile;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                title: const Text('Edit Chapter Name and Upload PDF'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter new chapter name'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['pdf'],
-                        );
-
-                        if (result != null) {
-                          setState(() {
-                            pdfFile = File(result.files.single.path!);
-                            pdfName = result.files.single.name; // Get PDF name
-                            pdfs[index]["PdfName"] = pdfName;
-                            setState(() {});
-                          });
-                        }
-                      },
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Upload PDF"),
-                    ),
-                    if (pdfFile != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          "Selected PDF: $pdfName",
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        chapters[index]["ChapterName"] = nameController.text;
-                        // Save the PDF name or upload it to storage here as needed
-                        chapters[index]["pdfName"] = pdfName;
-                      });
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Save'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      );
-    }
-  }
 
   handleDoubleClick(BuildContext context, int index) {
     if (viewMode == "Edit") {
@@ -191,19 +99,18 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Un-Restrict PDF'),
-              content: const Text(
-                  "Are you sure you want to Un-Restrict this PDF..?"),
+              content: const Text("Are you sure you want to Un-Restrict this PDF..?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  // Close the dialog
                   child: const Text('No'),
                 ),
                 TextButton(
                   onPressed: () {
-                    chapters[index]["Visibility"] = "true";
-                    Navigator.of(context).pop(); // Close the dialog
-                    setState(() {});
+                    setState(() {
+                      chapters[index]["Visibility"] = "true";
+                    });
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Yes'),
                 ),
@@ -218,19 +125,18 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Restrict PDF'),
-              content:
-                  const Text("Are you sure you want to Restrict this PDF..?"),
+              content: const Text("Are you sure you want to Restrict this PDF..?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  // Close the dialog
                   child: const Text('No'),
                 ),
                 TextButton(
                   onPressed: () {
-                    chapters[index]["Visibility"] = "false";
-                    Navigator.of(context).pop(); // Close the dialog
-                    setState(() {});
+                    setState(() {
+                      chapters[index]["Visibility"] = "false";
+                    });
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Yes'),
                 ),
@@ -239,39 +145,12 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           },
         );
       }
-    } else if (viewMode == "Normal") {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Delete Subject...!!'),
-            content: const Text(
-                "You are not in edit mode. Please start edit mode from top right side."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ok'),
-              ),
-            ],
-          );
-        },
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final icon = viewMode == "Normal"
-        ? FontAwesomeIcons.userPen
-        : FontAwesomeIcons.check;
-
-    // Filter chapters based on the subjectKey
-    List<Map> filteredChapters = chapters
-        .where(
-            (chapter) => chapter["SubjectKey"] == widget.subjectKey.toString())
-        .toList();
+    final icon = viewMode == "Normal" ? FontAwesomeIcons.userPen : FontAwesomeIcons.check;
 
     return Scaffold(
       appBar: AppBar(
@@ -294,6 +173,12 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
+            chapters = snapshot.data!; // Update chapters with fetched data
+            // Filter chapters based on the subjectKey
+            List<Map> filteredChapters = chapters
+                .where((chapter) => chapter["SubjectKey"] == widget.subjectKey)
+                .toList();
+
             if (filteredChapters.isNotEmpty) {
               return Container(
                 padding: const EdgeInsets.all(10),
@@ -308,10 +193,6 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                   itemCount: filteredChapters.length,
                   itemBuilder: (context, index) {
                     final chapter = filteredChapters[index];
-                    final subject = subjects.firstWhere(
-                      (sub) => sub["key"] == chapter["SubjectKey"],
-                      orElse: () => {},
-                    );
                     return InkWell(
                       onTap: () => handleCardTap(context, index),
                       onLongPress: () {
@@ -333,8 +214,8 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                     onPressed: () {
                                       setState(() {
                                         chapters.removeWhere(
-                                          (ch) =>
-                                              ch["key"] ==
+                                              (ch) =>
+                                          ch["key"] ==
                                               chapters[index]["key"],
                                         );
                                       });
@@ -388,7 +269,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                   Image.asset(
                                     "assets/Logo/Programmer.png",
                                     width: MediaQuery.of(context).size.width *
-                                        0.27,
+                                        0.2,
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -397,29 +278,18 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                         padding: const EdgeInsets.all(5),
                                         child: SizedBox(
                                           height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.3,
+                                              .size
+                                              .width *
+                                              0.25,
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 4),
                                                 child: Text(
-                                                  "Semester: ${subject["semester"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
-                                                child: Text(
-                                                  "Subject: ${subject["subject"]}",
+                                                  "Subject: ${chapter["SubjectName"]}",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
@@ -428,30 +298,30 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                                               ),
                                               SizedBox(
                                                 height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
+                                                    .size
+                                                    .height *
                                                     0.025,
                                                 child: Text(
-                                                  "Chapters: ${chapter["ChapterName"]}",
+                                                  "Chapters: ${chapter["chapterName"]}",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
                                                   ),
-                                                  softWrap: true,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               SizedBox(
                                                 height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
+                                                    .size
+                                                    .height *
                                                     0.025,
                                                 child: Text(
-                                                  "PDF Name: ${pdfs[index]["PdfName"]}",
+                                                  "PDF Name: ${chapter["PDFName"]}",
                                                   style: const TextStyle(
                                                     fontSize: 17,
                                                     color: Colors.white,
                                                   ),
-                                                  softWrap: true,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
@@ -465,7 +335,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                             ),
                           ),
                           if (chapter["Visibility"] == "false")
-                            // Overlay for restricted access
+                          // Overlay for restricted access
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
@@ -503,25 +373,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                 ),
               );
             } else {
-              return Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Lottie.asset(
-                      'assets/Animation/no_data_found.json',
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No Chapters found',
-                      style: TextStyle(fontSize: 25),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
+              return buildNoChaptersFound();
             }
           } else {
             return const Center(child: CircularProgressIndicator());
@@ -529,13 +381,126 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AdminAddNewChapter(widget.subjectKey)),
+          );
+        },
         backgroundColor: const Color(0xff2a446b),
         tooltip: "Add New Chapter.",
         child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
+      ),
+    );
+  }
+
+  void handleCardTap(BuildContext context, int index) async {
+    TextEditingController nameController =
+    TextEditingController(text: chapters[index]["chapterName"]);
+    String pdfName = '';
+
+    if (viewMode == "Normal") {
+      // Pass chapterName to AdminViewChapterPDF
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminViewChapterPDF(
+              chapters[index]["PDFName"]// Pass chapterName
+          ),
+        ),
+      );
+    } else if (viewMode == "Edit") {
+      // Existing code for edit mode
+      File? pdfFile;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Edit Chapter Name and Upload PDF'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                          hintText: 'Enter new chapter name'
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf'],
+                        );
+
+                        if (result != null) {
+                          setState(() {
+                            pdfFile = File(result.files.single.path!);
+                            pdfName = result.files.single.name; // Get PDF name
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text("Upload PDF"),
+                    ),
+                    if (pdfFile != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          "Selected PDF: $pdfName",
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        chapters[index]["chapterName"] = nameController.text;
+                        // Save the PDF name or upload it to storage here as needed
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    }
+  }
+
+  Widget buildNoChaptersFound() {
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Lottie.asset(
+            'assets/Animation/no_data_found.json',
+            width: MediaQuery.of(context).size.width * 0.6,
+            height: MediaQuery.of(context).size.height * 0.3,
+            fit: BoxFit.cover,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No Chapters found',
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
