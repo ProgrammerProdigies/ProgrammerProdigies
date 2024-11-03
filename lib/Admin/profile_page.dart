@@ -65,14 +65,14 @@ class _AdminProfilePageAndStudentAddPageState
                           const Text(
                             'Name:',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
                             profileData['name']!,
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 22,
                             ),
                           ),
                         ],
@@ -87,7 +87,7 @@ class _AdminProfilePageAndStudentAddPageState
                           const Text(
                             'Email:',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

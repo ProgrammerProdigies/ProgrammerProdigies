@@ -320,6 +320,9 @@ class _LoginPageState extends State<LoginPage> {
           var lastName = data["LastName"];
           var email = data["Email"];
           var semester = data["Semester"];
+          var theory = data["Theory"].toString();
+          var practical = data["Practical"].toString();
+          var papers = data["Papers"].toString();
           if (FCMToken == "") {
             final updatedData = {"FCMToken": fcmToken};
             final userRef = FirebaseDatabase.instance
@@ -334,6 +337,9 @@ class _LoginPageState extends State<LoginPage> {
               await saveData('LastName', lastName);
               await saveData('Semester', semester);
               await saveData('StudentEmail', email);
+              await saveData('Theory', theory);
+              await saveData('Practical', practical);
+              await saveData('Papers', papers);
               await saveData('key', key);
               count = count + 1;
               Navigator.pop(context);
@@ -353,6 +359,9 @@ class _LoginPageState extends State<LoginPage> {
               await saveData('LastName', lastName);
               await saveData('Semester', semester);
               await saveData('StudentEmail', email);
+              await saveData('Theory', theory);
+              await saveData('Practical', practical);
+              await saveData('Papers', papers);
               await saveData('key', key);
               count = count + 1;
               Navigator.pop(context);
