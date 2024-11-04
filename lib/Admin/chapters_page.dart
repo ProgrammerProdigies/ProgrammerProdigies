@@ -123,6 +123,25 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           );
         },
       );
+    } else if (viewMode == "Normal") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Restrict subject...!!'),
+            content: const Text(
+                "You are not in edit mode. Please start edit mode from top right side."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -243,11 +262,8 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                           );
                         }
                       },
-
                       onDoubleTap: () {
-                        setState(() {
                           handleDoubleClick(context, index);
-                        });
                       },
                       child: Stack(
                         children: [

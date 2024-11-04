@@ -21,8 +21,8 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
   late List<Map> filteredSubjects;
 
   String viewMode = "Normal";
-  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
-
+  DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
 
   Future<List<Map>> getPackagesData() async {
     subjects.clear();
@@ -32,18 +32,29 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
         values.forEach((key, value) {
           subjects.add({
             "key": key,
-            "Semester":value["Semester"],
+            "Semester": value["Semester"],
             "Subject": value["SubjectName"],
             "Category": value["Category"],
+            "Visibility": value["Visibility"],
           });
         });
         // subjects.sort((a, b) => a["Semester"].compareTo(b["Semester"]));
       }
     });
-    setState(() {
-
-    });
+    setState(() {});
     return subjects;
+  }
+
+  void handleCardTap(BuildContext context, int index) {
+    if (viewMode == "Normal") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              AdminChaptersPage(filteredSubjects[index]["key"]),
+        ),
+      );
+    }
   }
 
   void toggleViewMode() {
@@ -52,46 +63,137 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
     });
   }
 
-  void handleCardTap(BuildContext context, int index) {
-    if (viewMode == "Normal") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AdminChaptersPage(filteredSubjects[index]["key"]),
-        ),
-      );
-    } else if (viewMode == "Edit") {
-      // Create a TextEditingController to manage the input
-      TextEditingController nameController =
-      TextEditingController(text: filteredSubjects[index]["Subject"]);
-
-      // Show an AlertDialog for editing the subject name
+  void handleDoubleTap(BuildContext context, int index) {
+    if (viewMode == "Edit") {
+      if (filteredSubjects[index]["Visibility"] == false) {
+        // Show an AlertDialog for editing the subject name
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Un-Restrict subject'),
+              content: const Text(
+                  "Are you sure you want to Un-Restrict this subject..?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  // Close the dialog
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final updatedData = {"Visibility": "true"};
+                    final userRef = FirebaseDatabase.instance
+                        .ref()
+                        .child("ProgrammerProdigies/tblSubject")
+                        .child(filteredSubjects[index]["key"]);
+                    await userRef.update(updatedData);
+                    Navigator.of(context).pop();
+                    setState(() {});
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            );
+          },
+        );
+      } else if (filteredSubjects[index]["Visibility"] == true) {
+        // Show an AlertDialog for editing the subject name
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Restrict semester'),
+              content: const Text(
+                  "Are you sure you want to Restrict this semester..?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  // Close the dialog
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final updatedData = {"Visibility": "false"};
+                    final userRef = FirebaseDatabase.instance
+                        .ref()
+                        .child("ProgrammerProdigies/tblSubject")
+                        .child(filteredSubjects[index]["key"]);
+                    await userRef.update(updatedData);
+                    // semester[index]["Visibility"] = "false";
+                    Navigator.of(context).pop(); // Close the dialog
+                    setState(() {});
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else if (viewMode == "Normal") {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Edit Subject Name'),
-            content: TextField(
-              controller: nameController,
-              decoration:
-              const InputDecoration(hintText: 'Enter new subject name'),
-            ),
+            title: const Text('Restrict subject...!!'),
+            content: const Text(
+                "You are not in edit mode. Please start edit mode from top right side."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void handleLongPress(BuildContext context, int index) {
+    if (viewMode == "Edit") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Delete Subject...!!'),
+            content: Text(
+                "Are you sure you want to delete ${filteredSubjects[index]["Subject"]}?"),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                // Close the dialog
                 child: const Text('Cancel'),
               ),
               TextButton(
-                onPressed: () {
-                  // Update the subject name
-                  setState(() {
-                    subjects[index]["subject"] =
-                        nameController.text; // Update the name in the list
-                  });
-                  Navigator.of(context).pop(); // Close the dialog
+                onPressed: () async {
+                  await FirebaseDatabase.instance
+                      .ref()
+                      .child(
+                          "ProgrammerProdigies/tblSubject/${filteredSubjects[index]["key"]}")
+                      .remove();
+                  Navigator.of(context).pop();
                 },
-                child: const Text('Save'),
+                child: const Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Edit Subject...!!'),
+            content: const Text(
+                "You are not in edit mode. Please start edit mode from the top right side."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Ok'),
               ),
             ],
           );
@@ -144,105 +246,91 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () => handleCardTap(context, index),
-                    onLongPress: () {
-                      if (viewMode == "Edit") {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Delete Subject...!!'),
-                              content: Text(
-                                  "Are you sure you want to delete ${filteredSubjects[index]["subject"]} subject?"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      subjects.removeWhere(
-                                            (ch) =>
-                                        ch["key"] == filteredSubjects[index]["key"],
-                                      );
-                                    });
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Yes'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Edit Subject...!!'),
-                              content: const Text(
-                                  "You are not in edit mode. Please start edit mode from top right side."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Ok'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
+                    onDoubleTap: () => handleDoubleTap(context, index),
+                    onLongPress: () => handleLongPress(context, index),
                     child: Card(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xff2a446b),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/Logo/Programmer.png",
-                              width: MediaQuery.of(context).size.width * 0.29,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 1,
+                            decoration: BoxDecoration(
+                              color: const Color(0xff2a446b),
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: SizedBox(
-                                height:
-                                MediaQuery.of(context).size.width * 0.15,
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(0),
-                                      child: Text(
-                                        filteredSubjects[index]["Subject"],
-                                        style: const TextStyle(
-                                          fontSize: 17,
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  "assets/Logo/Programmer.png",
+                                  width: MediaQuery.of(context).size.width * 0.29,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: SizedBox(
+                                    height:
+                                    MediaQuery.of(context).size.width * 0.15,
+                                    child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(0),
+                                          child: Text(
+                                            filteredSubjects[index]["Subject"],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(0),
+                                          child: Text(
+                                            filteredSubjects[index]["Category"],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (filteredSubjects[index]["Visibility"] == "false")
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.8),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.lock,
+                                        color: Colors.white,
+                                        size: 40,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Restricted",
+                                        style: TextStyle(
                                           color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(0),
-                                      child: Text(
-                                        filteredSubjects[index]["Category"],
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   );
@@ -276,7 +364,10 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>AdminAddNewSubject(widget.semester)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AdminAddNewSubject(widget.semester)));
         },
         backgroundColor: const Color(0xff2a446b),
         tooltip: "Add New subject.",

@@ -52,6 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
   var page;
   late String? fcmToken = "";
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  bool i = false;
 
   @override
   void initState() {
@@ -60,15 +61,49 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 5));
-    fcmToken = await _fcm.getToken();
-    await _checkIfLoggedIn();
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var firstTime = prefs.containsKey("firstTime");
+    BuildContext Context = context;
+
+    if (!firstTime) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Here\'s a message for you from the admin...!!'),
+            content: const Text(
+                "You have to make a payment before logging in. To know the details of the packages and the price, please contact the admin at this email address: programmerprodigies@gmail.com."),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Close the dialog
+                  await saveFirstTime(true);
+                  await Future.delayed(const Duration(seconds: 5));
+                  fcmToken = await _fcm.getToken();
+                  await _checkIfLoggedIn();
+                  Navigator.pushReplacement(
+                    Context,
+                    MaterialPageRoute(builder: (context) => page),
+                  );
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // If not the first time, proceed directly
+      await Future.delayed(const Duration(seconds: 5));
+      fcmToken = await _fcm.getToken();
+      await _checkIfLoggedIn();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    }
   }
+
 
   Future<void> _checkIfLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

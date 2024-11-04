@@ -21,6 +21,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   var filteredPracticalSubjects = [];
   var filteredPapersSubjects = [];
   List<Map> finalSubjects = [];
+  List<Map> packageSubjects = [];
 
   late String studentSemester;
   late bool theory;
@@ -33,6 +34,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   Future<List<Map>> getPackagesData() async {
     finalSubjects.clear();
+    packageSubjects.clear();
     studentSemester = (await getData("Semester"))!;
     var Theory = (await getData("Theory"))!;
     var Practical = (await getData("Practical"))!;
@@ -79,7 +81,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         .where((subject) => subject["Category"] == "Theory")
         .toList();
     if (theory) {
-      finalSubjects = [...filteredTheorySubjects];
+      packageSubjects = [...filteredTheorySubjects];
     }
 
     filteredPracticalSubjects = filteredSubjects
@@ -88,7 +90,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
     if (practical) {
       // Second filter by Category Practical
-      finalSubjects = [
+      packageSubjects = [
         ...filteredPracticalSubjects,
       ];
     }
@@ -98,10 +100,15 @@ class _StudentHomePageState extends State<StudentHomePage> {
         .where((subject) => subject["Category"] == "Papers")
         .toList();
     if (papers) {
-      finalSubjects = [
+      packageSubjects = [
         ...filteredPapersSubjects,
       ];
     }
+
+    // Second filter by Category papers
+    finalSubjects = packageSubjects
+        .where((subject) => subject["Visibility"] == "true")
+        .toList();
 
     return finalSubjects;
   }

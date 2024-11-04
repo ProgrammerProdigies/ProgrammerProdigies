@@ -106,7 +106,6 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                   itemCount: filteredChapters.length,
                   itemBuilder: (context, index) {
                     final chapter = filteredChapters[index];
-                    print("semester $semester");
                     return InkWell(
                       onTap: () => handleCardTap(context, index),
                       child: Stack(

@@ -30,6 +30,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> loadUser() async {
+    key = (await getKey())!;
     email = (await getData("StudentEmail"))!;
     Query dbRef2 = FirebaseDatabase.instance
         .ref()
@@ -194,9 +195,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () async {
-                    SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
-                    prefs.clear();
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.remove("FirstName");
+                    prefs.remove("LastName");
+                    prefs.remove("Semester");
+                    prefs.remove("StudentEmail");
+                    prefs.remove("Theory");
+                    prefs.remove("Practical");
+                    prefs.remove("Papers");
+                    prefs.remove("key");
                     final updatedData = {"FCMToken": ""};
                     final userRef = FirebaseDatabase.instance
                         .ref()

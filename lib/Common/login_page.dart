@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmer_prodigies/Student/contact.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
 import 'package:programmer_prodigies/saveSharePreferences.dart';
@@ -258,6 +259,32 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                       ],
                                     ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(0),
+                                          child: TextButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const ContactUs(),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text(
+                                              "Contact us",
+                                              style: TextStyle(
+                                                  color: Color(0xff2a446b),
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -323,59 +350,92 @@ class _LoginPageState extends State<LoginPage> {
           var theory = data["Theory"].toString();
           var practical = data["Practical"].toString();
           var papers = data["Papers"].toString();
-          if (FCMToken == "") {
-            final updatedData = {"FCMToken": fcmToken};
-            final userRef = FirebaseDatabase.instance
-                .ref()
-                .child("ProgrammerProdigies/tblStudent")
-                .child(key!);
-            await userRef.update(updatedData);
-            if (data["Email"] == email &&
-                data["Password"].toString() == password &&
-                data['Visibility']) {
-              await saveData('FirstName', firstName);
-              await saveData('LastName', lastName);
-              await saveData('Semester', semester);
-              await saveData('StudentEmail', email);
-              await saveData('Theory', theory);
-              await saveData('Practical', practical);
-              await saveData('Papers', papers);
-              await saveData('key', key);
-              count = count + 1;
-              Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const StudentHomePage()));
-            } else {
-              msg = "Sorry..! Wrong email or Password";
-              _showSnackbar(scaffoldContext, msg);
+          var semData;
+          Query dbRef = FirebaseDatabase.instance
+              .ref()
+              .child('ProgrammerProdigies/tblSemester/$semester');
+          DatabaseEvent databaseEventStudent = await dbRef.once();
+          DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
+          for (var x in dataSnapshotStudent.children) {
+            semData = x.value as String;
+            if (semData.toString().contains("true") ||
+                semData.toString().contains("false")) {
+              break;
             }
-          } else if (FCMToken == fcmToken) {
-            if (data["Email"] == email &&
-                data["Password"].toString() == password &&
-                data['Visibility']) {
-              await saveData('FirstName', firstName);
-              await saveData('LastName', lastName);
-              await saveData('Semester', semester);
-              await saveData('StudentEmail', email);
-              await saveData('Theory', theory);
-              await saveData('Practical', practical);
-              await saveData('Papers', papers);
-              await saveData('key', key);
-              count = count + 1;
-              Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const StudentHomePage()));
-            } else {
-              msg = "Sorry..! Wrong email or Password";
-              _showSnackbar(scaffoldContext, msg);
+          }
+          if (semData == "true") {
+            if (FCMToken == "") {
+              final updatedData = {"FCMToken": fcmToken};
+              final userRef = FirebaseDatabase.instance
+                  .ref()
+                  .child("ProgrammerProdigies/tblStudent")
+                  .child(key!);
+              await userRef.update(updatedData);
+              if (data["Email"] == email &&
+                  data["Password"].toString() == password &&
+                  data['Visibility']) {
+                await saveData('FirstName', firstName);
+                await saveData('LastName', lastName);
+                await saveData('Semester', semester);
+                await saveData('StudentEmail', email);
+                await saveData('Theory', theory);
+                await saveData('Practical', practical);
+                await saveData('Papers', papers);
+                await saveData('key', key);
+                count = count + 1;
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StudentHomePage()));
+              } else {
+                msg = "Sorry..! Wrong email or Password";
+                _showSnackbar(scaffoldContext, msg);
+              }
+            } else if (FCMToken == fcmToken) {
+              if (data["Email"] == email &&
+                  data["Password"].toString() == password &&
+                  data['Visibility']) {
+                await saveData('FirstName', firstName);
+                await saveData('LastName', lastName);
+                await saveData('Semester', semester);
+                await saveData('StudentEmail', email);
+                await saveData('Theory', theory);
+                await saveData('Practical', practical);
+                await saveData('Papers', papers);
+                await saveData('key', key);
+                count = count + 1;
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StudentHomePage()));
+              } else {
+                msg = "Sorry..! Wrong email or Password";
+                _showSnackbar(scaffoldContext, msg);
+              }
+            } else if (FCMToken != fcmToken) {
+              msg =
+                  "You already have logged in some other phone, you can not login with this device.";
             }
-          } else if (FCMToken != fcmToken) {
-            msg =
-                "You already have logged in some other phone, you can not login with this device.";
+          } else if (semData == "false") {
+            count = count + 1;
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Login..!!'),
+                  content: const Text(
+                      "The semester you are trying to access is currently not available. Please contact admin on this email address :- programmerprodigies@gmail.com for more details"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Ok'),
+                    ),
+                  ],
+                );
+              },
+            );
           }
         }
         if (count == 0) {
