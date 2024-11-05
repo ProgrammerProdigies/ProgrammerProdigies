@@ -109,7 +109,7 @@ class _AdminProfilePageAndStudentAddPageState
                         onPressed: () async {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
-                          prefs.clear();
+                          prefs.remove("AdminEmail");
                           Navigator.pop(context);
                           Navigator.push(
                             context,
