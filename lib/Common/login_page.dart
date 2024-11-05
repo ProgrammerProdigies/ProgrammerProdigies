@@ -7,7 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
-import 'package:programmer_prodigies/Common/adminLoginCrediantials.dart';
+import 'package:programmer_prodigies/Common/adminLoginCredentials.dart';
 import 'package:programmer_prodigies/Student/contact.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
