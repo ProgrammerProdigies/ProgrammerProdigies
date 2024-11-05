@@ -78,7 +78,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         backgroundColor: const Color(0xff2a446b),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.65,
         child: Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -88,111 +89,48 @@ class _UserProfilePageState extends State<UserProfilePage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.blueGrey,
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.white,
+                const Text(
+                  'Profile Information',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Name Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Name:',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                      ),
-                    ),
-                  ],
+                const Divider(height: 30, color: Colors.grey),
+                ListTile(
+                  title: const Text(
+                    'Name',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(name),
                 ),
-                const SizedBox(height: 8),
-                Divider(color: Colors.grey[300]),
-
-                // Email Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Email:',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      email,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                const Divider(height: 20, color: Colors.grey),
+                ListTile(
+                  title: const Text(
+                    'Email',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(email),
                 ),
-                const SizedBox(height: 8),
-                Divider(color: Colors.grey[300]),
-
-                // Phone Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Phone:',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      phone,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                const Divider(height: 20, color: Colors.grey),
+                ListTile(
+                  title: const Text(
+                    'Semester',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(semester),
                 ),
-                const SizedBox(height: 8),
-                Divider(color: Colors.grey[300]),
-
-                // Bio Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Sem:',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        semester,
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ],
+                const Divider(height: 20, color: Colors.grey),
+                ListTile(
+                  title: const Text(
+                    'Contact No',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(phone),
                 ),
-                const SizedBox(height: 16),
+                const Divider(height: 20, color: Colors.grey),
                 ElevatedButton(
                   onPressed: () async {
                     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -231,7 +169,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     "Logout",
                     style: TextStyle(color: Colors.white),
                   ),
-                ),
+                )
               ],
             ),
           ),
