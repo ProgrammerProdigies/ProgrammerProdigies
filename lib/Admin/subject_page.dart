@@ -1,6 +1,5 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
@@ -18,18 +17,46 @@ class AdminSubjectPage extends StatefulWidget {
 
 class _AdminSubjectPageState extends State<AdminSubjectPage> {
   List<Map> subjects = [];
+  List<Map> chapters = [];
 
-  List<Map> semester = [];
   late List<Map> filteredSubjects;
+  late List<Map> filteredChapters;
 
   String viewMode = "Normal";
-  DatabaseReference dbRef =
-      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
+
+  DatabaseReference ChepterdbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
+
+  Future<List<Map>> getChapterData() async {
+    chapters.clear();
+    try {
+      DatabaseEvent event = await ChepterdbRef.once();
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+
+      if (values != null) {
+        values.forEach((key, value) {
+          chapters.add({
+            "key": key,
+            "SubjectKey": value["SubjectKey"],
+            "chapterName": value["ChapterName"],
+            "PDFName": value["PDFName"],
+            "Visibility": value["Visibility"],
+          });
+        });
+      }
+      setState(() {});
+    } catch (e) {
+      print("Error fetching chapters: $e");
+    }
+    return chapters;
+  }
 
   Future<List<Map>> getPackagesData() async {
     subjects.clear();
-    await dbRef.once().then((event) {
+    try {
+      DatabaseEvent event = await dbRef.once();
       Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+
       if (values != null) {
         values.forEach((key, value) {
           subjects.add({
@@ -40,10 +67,11 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
             "Visibility": value["Visibility"],
           });
         });
-        // subjects.sort((a, b) => a["Semester"].compareTo(b["Semester"]));
       }
-    });
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      print("Error fetching subjects: $e");
+    }
     return subjects;
   }
 
@@ -52,8 +80,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              AdminChaptersPage(filteredSubjects[index]["key"]),
+          builder: (context) => AdminChaptersPage(filteredSubjects[index]["key"]),
         ),
       );
     }
@@ -67,85 +94,53 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
 
   void handleDoubleTap(BuildContext context, int index) {
     if (viewMode == "Edit") {
-      if (filteredSubjects[index]["Visibility"] == false) {
-        // Show an AlertDialog for editing the subject name
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Un-Restrict subject'),
-              content: const Text(
-                  "Are you sure you want to Un-Restrict this subject..?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  // Close the dialog
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final updatedData = {"Visibility": "true"};
-                    final userRef = FirebaseDatabase.instance
-                        .ref()
-                        .child("ProgrammerProdigies/tblSubject")
-                        .child(filteredSubjects[index]["key"]);
-                    await userRef.update(updatedData);
-                    Navigator.of(context).pop();
-                    setState(() {});
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
-        );
-      } else if (filteredSubjects[index]["Visibility"] == true) {
-        // Show an AlertDialog for editing the subject name
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Restrict semester'),
-              content: const Text(
-                  "Are you sure you want to Restrict this semester..?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  // Close the dialog
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final updatedData = {"Visibility": "false"};
-                    final userRef = FirebaseDatabase.instance
-                        .ref()
-                        .child("ProgrammerProdigies/tblSubject")
-                        .child(filteredSubjects[index]["key"]);
-                    await userRef.update(updatedData);
-                    // semester[index]["Visibility"] = "false";
-                    Navigator.of(context).pop(); // Close the dialog
-                    setState(() {});
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } else if (viewMode == "Normal") {
+      String subjectKey = filteredSubjects[index]["key"];
+      String subjectName = filteredSubjects[index]["Subject"];
+      bool isVisible = filteredSubjects[index]["Visibility"] == "true"; // Visibility is a String
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Restrict subject...!!'),
-            content: const Text(
-                "You are not in edit mode. Please start edit mode from top right side."),
+            title: Text(isVisible ? 'Restrict subject' : 'Un-Restrict subject'),
+            content: Text(
+              "Are you sure you want to ${isVisible ? 'restrict' : 'un-restrict'} the subject: $subjectName?",
+            ),
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final updatedData = {
+                    "Visibility": isVisible ? "false" : "true", // Toggle visibility
+                  };
+                  final subjectRef = FirebaseDatabase.instance
+                      .ref()
+                      .child("ProgrammerProdigies/tblSubject")
+                      .child(subjectKey);
+                  await subjectRef.update(updatedData); // Update Firebase
                   Navigator.of(context).pop();
+                  setState(() {}); // Refresh the UI after update
                 },
+                child: const Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Show message if not in edit mode
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Edit Mode Required'),
+            content: const Text("You are not in edit mode. Please start edit mode from the top right side."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Ok'),
               ),
             ],
@@ -155,15 +150,17 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
     }
   }
 
-  void handleLongPress(BuildContext context, int index) {
+  void handleLongPress(BuildContext context, int index) async {
     if (viewMode == "Edit") {
+      String subjectKey = filteredSubjects[index]["key"];
+      String subjectName = filteredSubjects[index]["Subject"];
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Delete Subject...!!'),
-            content: Text(
-                "Are you sure you want to delete ${filteredSubjects[index]["Subject"]}?"),
+            content: Text("Are you sure you want to delete the subject: $subjectName?"),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -171,12 +168,14 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
               ),
               TextButton(
                 onPressed: () async {
+                  await deleteChaptersAndPDFs(subjectKey);
                   await FirebaseDatabase.instance
                       .ref()
-                      .child(
-                          "ProgrammerProdigies/tblSubject/${filteredSubjects[index]["key"]}")
+                      .child("ProgrammerProdigies/tblSubject")
+                      .child(subjectKey)
                       .remove();
                   Navigator.of(context).pop();
+                  setState(() {}); // Refresh the UI after deleting
                 },
                 child: const Text('Yes'),
               ),
@@ -189,9 +188,8 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Edit Subject...!!'),
-            content: const Text(
-                "You are not in edit mode. Please start edit mode from the top right side."),
+            title: const Text('Edit Mode Required'),
+            content: const Text("You are not in edit mode. Please start edit mode from the top right side."),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -204,13 +202,37 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
     }
   }
 
+  Future<void> deleteChaptersAndPDFs(String subjectKey) async {
+    try {
+      DatabaseReference chaptersRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+      DatabaseEvent chaptersEvent = await chaptersRef.orderByChild('SubjectKey').equalTo(subjectKey).once();
+      if (chaptersEvent.snapshot.exists) {
+        Map<dynamic, dynamic> chaptersData = chaptersEvent.snapshot.value as Map;
+
+        for (var chapterKey in chaptersData.keys) {
+          String pdfName = chaptersData[chapterKey]['PDFName'];
+          await deletePDFFromStorage(pdfName);
+          await chaptersRef.child(chapterKey).remove();
+        }
+      }
+    } catch (e) {
+      print("Error deleting chapters and PDFs: $e");
+    }
+  }
+
+  Future<void> deletePDFFromStorage(String pdfName) async {
+    try {
+      Reference pdfRef = FirebaseStorage.instance.ref().child('chapters_pdfs/$pdfName');
+      await pdfRef.delete();
+    } catch (e) {
+      print("Error deleting PDF: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final icon = viewMode == "Normal"
-        ? FontAwesomeIcons.userPen
-        : FontAwesomeIcons.check;
+    final icon = viewMode == "Normal" ? FontAwesomeIcons.userPen : FontAwesomeIcons.check;
 
-    // Filter chapters based on the subjectKey
     filteredSubjects = subjects
         .where((subject) => subject["Semester"] == widget.semester)
         .toList();
@@ -271,8 +293,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                                 Padding(
                                   padding: const EdgeInsets.all(5),
                                   child: SizedBox(
-                                    height:
-                                    MediaQuery.of(context).size.width * 0.15,
+                                    height: MediaQuery.of(context).size.width * 0.15,
                                     child: Column(
                                       children: [
                                         Padding(

@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmer_prodigies/Common/adminLoginCrediantials.dart';
 import 'package:programmer_prodigies/Student/contact.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
@@ -321,10 +322,9 @@ class _LoginPageState extends State<LoginPage> {
     final scaffoldContext = context;
     var email = controllerEmail.text;
     var password = controllerPassword.text;
-    var adminPassword = "admin";
     Query dbRef2;
     var count = 0;
-    if (email == "programmerprodigies@gmail.com" && password == adminPassword) {
+    if (email == EMAIL && password == PASSWORD) {
       count = count + 1;
       await saveData("AdminEmail", email);
       Navigator.pop(context);

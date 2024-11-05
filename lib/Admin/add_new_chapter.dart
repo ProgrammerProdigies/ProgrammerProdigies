@@ -157,6 +157,7 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
