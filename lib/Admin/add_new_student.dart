@@ -20,7 +20,8 @@ class AdminAddNewStudent extends StatefulWidget {
 class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Map> semester = [];
-  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblStudent');
+  DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblStudent');
 
   TextEditingController controllerFirstName = TextEditingController();
   TextEditingController controllerLastname = TextEditingController();
@@ -33,19 +34,29 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
   final _messagingService = MessagingService();
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   late String? fcmToken;
-  List<Map<String, dynamic>> displaySemesterMap = [];
+  late List<Map<String, dynamic>> displaySemesterMap;
+
   List<Map<String, dynamic>> displayPackageMap = [
-    {"key": "Select Package", "PackageName": "Select Package", "Visibility" : "true"},
-    {"key": "1", "PackageName": "Theory", "Visibility" : "true"},
-    {"key": "2", "PackageName": "Practical", "Visibility" : "true"},
-    {"key": "3", "PackageName": "Papers", "Visibility" : "true"},
-    {"key": "4", "PackageName": "Theory + Practical", "Visibility" : "true"},
-    {"key": "5", "PackageName": "Theory + Practical + Papers", "Visibility" : "true"},
+    {
+      "key": "Select Package",
+      "PackageName": "Select Package",
+      "Visibility": "true"
+    },
+    {"key": "1", "PackageName": "Theory", "Visibility": "true"},
+    {"key": "2", "PackageName": "Practical", "Visibility": "true"},
+    {"key": "3", "PackageName": "Papers", "Visibility": "true"},
+    {"key": "4", "PackageName": "Theory + Practical", "Visibility": "true"},
+    {
+      "key": "5",
+      "PackageName": "Theory + Practical + Papers",
+      "Visibility": "true"
+    },
   ];
 
   @override
   void initState() {
     super.initState();
+    displaySemesterMap = widget.displaySemesterMap;
     _loadUserData();
   }
 
@@ -56,7 +67,6 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
 
   @override
   Widget build(BuildContext context) {
-    displaySemesterMap = widget.displaySemesterMap;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -358,8 +368,10 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                     } else {
                                       gender = selectedGender!;
                                     }
-                                    bool theory= false, practical= false, papers=false;
-                                    switch(selectedPackage){
+                                    bool theory = false,
+                                        practical = false,
+                                        papers = false;
+                                    switch (selectedPackage) {
                                       case "1":
                                         theory = true;
                                         break;
@@ -387,7 +399,10 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                         gender,
                                         semester!,
                                         "",
-                                        true, theory, practical, papers);
+                                        true,
+                                        theory,
+                                        practical,
+                                        papers);
                                     dbRef.push().set(regobj.toJson());
                                     sendMail(regobj.toJson());
                                     showDialog(

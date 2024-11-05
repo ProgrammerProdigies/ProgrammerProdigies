@@ -1,10 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:programmer_prodigies/Admin/chapters_page.dart';
 import 'package:programmer_prodigies/Models/chapter_model.dart';
 
 // class ChapterModel {
@@ -41,9 +43,10 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController chapterNameController = TextEditingController();
   String? pdfPath; // Store the selected PDF file path
-  String? pdfName;  // Store the uploaded PDF URL
+  String? pdfName; // Store the uploaded PDF URL
   late String fileName;
-  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+  DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +107,8 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
 
     File file = File(pdfPath!);
     try {
-      fileName = '${chapterNameController.text.replaceAll(' ', '_')}.pdf'; // Use chapter name as filename, replace spaces with underscores
+      fileName =
+          '${chapterNameController.text.replaceAll(' ', '_')}.pdf'; // Use chapter name as filename, replace spaces with underscores
       Reference ref = FirebaseStorage.instance.ref('ChapterPDF/$fileName');
 
       await ref.putFile(file);
@@ -113,7 +117,6 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
       rethrow; // Propagate the error
     }
   }
-
 
   Future<void> submitChapter() async {
     if (_formKey.currentState!.validate() && pdfPath != null) {
@@ -141,7 +144,31 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Chapter added successfully!')),
         );
-        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Subject Added"),
+              content: const Text(
+                  "Subject added successfully..!!"),
+              actions: <Widget>[
+                OutlinedButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AdminChaptersPage(widget.subjectKey),
+                      ),
+                    );
+                  },
+                )
+              ],
+            );
+          },
+        );
       } catch (e) {
         // Handle errors during upload or database write
         ScaffoldMessenger.of(context).showSnackBar(
@@ -150,7 +177,8 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select a PDF.')),
+        const SnackBar(
+            content: Text('Please fill all fields and select a PDF.')),
       );
     }
   }

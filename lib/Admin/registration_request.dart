@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names, prefer_typing_uninitialized_variables, use_build_context_synchronously
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -16,20 +14,9 @@ class AdminRegistrationRequest extends StatefulWidget {
 }
 
 class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
-  late String imagePath;
-  late String date;
-  late String username;
-  late String userkey;
-  List<Map> Students = [];
-  late String packageImagePath;
-  Map<dynamic, dynamic>? userData;
+  List<Map> student = [];
   Map<int, Map> semesterMap = {};
   List<Map<String, dynamic>> displaySemesterMap = [];
-  late Map data2;
-  late Map data;
-  late var disease;
-  bool visible = false;
-  String? selectedPackage = "Select Package";
   bool dataFetched = false; // Flag to track if data has been fetched
 
   List<Map<String, dynamic>> displayPackageMap = [
@@ -49,50 +36,19 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
     },
   ];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   loadUser();
-  // }
-
-  // Future<void> loadUser() async {
-  //   String? Username = await getData("username");
-  //   String? UserKey = await getKey();
-  //   setState(() {
-  //     username = Username!;
-  //     userkey = UserKey!;
-  //   });
-  //   getPackagesData();
-  // }
-
-  // Future<void> fetchUserData(String key, int index) async {
-  //   userMap.clear();
-  //   DatabaseReference dbUserData = FirebaseDatabase.instance
-  //       .ref()
-  //       .child("ProgrammerProdigies/tblStudent")
-  //       .child(key);
-  //   DatabaseEvent userDataEvent = await dbUserData.once();
-  //   DataSnapshot userDataSnapshot = userDataEvent.snapshot;
-  //   userData = userDataSnapshot.value as Map?;
-  //   userMap[index] = {
-  //     "Key": userDataSnapshot.key,
-  //     "StudentName": userData!["HospitalName"],
-  //   };
-  //   setState(() {});
-  // }
+  List<String?> selectedPackages = []; // List to store selected package per student
 
   Future<void> fetchSemesterData(String key, int index) async {
-    semesterMap.clear();
     DatabaseReference dbUserData = FirebaseDatabase.instance
         .ref()
         .child("ProgrammerProdigies/tblSemester")
         .child(key);
     DatabaseEvent userDataEvent = await dbUserData.once();
     DataSnapshot userDataSnapshot = userDataEvent.snapshot;
-    userData = userDataSnapshot.value as Map?;
+    Map<dynamic, dynamic>? userData = userDataSnapshot.value as Map?;
     semesterMap[index] = {
       "Key": userDataSnapshot.key,
-      "Semester": userData!["Semester"],
+      "Semester": userData?["Semester"],
     };
     setState(() {});
   }
@@ -123,24 +79,20 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
   }
 
   Future<List<Map>> getStudentData() async {
-    // Students.clear();
-    if (dataFetched) {
-      return Students; // Return if data has already been fetched
-    }
+    if (dataFetched) return student;
     DatabaseReference dbRef =
         FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblStudent');
     DatabaseEvent event = await dbRef.once();
     DataSnapshot snapshot = event.snapshot;
 
-    if (snapshot.value == null) {
-      return Students;
-    }
+    if (snapshot.value == null) return student;
 
     Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
-    Students.clear();
+    student.clear();
+    selectedPackages.clear();
     values.forEach((key, value) async {
       if (value["Visibility"] == false) {
-        Students.add({
+        student.add({
           'Key': key,
           'FirstName': value["FirstName"],
           'LastName': value["LastName"],
@@ -151,12 +103,14 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
           'FCMToken': value["FCMToken"],
           'Visibility': value["Visibility"],
         });
-        await fetchSemesterData(value["Semester"], Students.length - 1);
-        dataFetched = true;
+        selectedPackages
+            .add("Select Package"); // Default selection for each student
+        await fetchSemesterData(value["Semester"], student.length - 1);
       }
     });
+    dataFetched = true;
     setState(() {});
-    return Students;
+    return student;
   }
 
   @override
@@ -170,10 +124,8 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
     getSemesterData();
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Student Requests",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text("Student Requests",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xff2a446b),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -188,50 +140,39 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
-                if (Students.isNotEmpty && semesterMap.isNotEmpty) {
+                if (student.isNotEmpty && semesterMap.isNotEmpty) {
                   return ListView.builder(
-                    itemCount: Students.length,
+                    itemCount: student.length,
                     itemBuilder: (context, index) {
-                      data2 = Students[index];
-                      data = semesterMap[index]!;
+                      var data2 = student[index];
+                      var data = semesterMap[index] ?? {};
                       return Card(
                         child: Stack(
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(5),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Student Name: ${data2['FirstName']}  ${data2['LastName']}",
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  Text(
-                                    "Student Email address: ${data2["Email"]}",
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  Text(
-                                    "Semester: ${data['Semester']}",
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  Text(
-                                    "Contact number: ${data2['ContactNumber']}",
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
+                                      "Student Name: ${data2['FirstName']}  ${data2['LastName']}",
+                                      style: const TextStyle(fontSize: 17)),
+                                  Text("Student Email address: ${data2["Email"]}",
+                                      style: const TextStyle(fontSize: 17)),
+                                  Text("Semester: ${data['Semester']}",
+                                      style: const TextStyle(fontSize: 17)),
+                                  Text("Contact number: ${data2['ContactNumber']}",
+                                      style: const TextStyle(fontSize: 17)),
                                   DropdownButton<String>(
-                                    value: selectedPackage,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10)),
+                                    value: selectedPackages[index],
+                                    borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
                                     style: const TextStyle(color: Colors.black),
                                     items: displayPackageMap
                                         .where((package) =>
-                                            package["Visibility"] == "true")
+                                    package["Visibility"] == "true")
                                         .map<DropdownMenuItem<String>>(
-                                      (Map<String, dynamic> package) {
+                                          (Map<String, dynamic> package) {
                                         return DropdownMenuItem<String>(
                                           value: package["key"],
                                           child: Text(package["PackageName"],
@@ -242,138 +183,60 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
                                     ).toList(),
                                     onChanged: (String? newValue) {
                                       setState(() {
-                                        selectedPackage = newValue;
-                                        if (selectedPackage !=
-                                            "Select Package") {
-                                          visible = true;
-                                        } else {
-                                          visible = false;
-                                        }
+                                        selectedPackages[index] = newValue;
                                       });
                                     },
-                                    hint: const Text(
-                                      "Select a package",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
                                     isExpanded: true,
-                                    underline: Container(
-                                      height: 1,
-                                      color:
-                                          Colors.grey, // Color of the underline
+                                    underline:
+                                    Container(height: 1, color: Colors.grey),
+                                  ),
+                                  if (selectedPackages[index] != "Select Package")
+                                    TextButton(
+                                      onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text(
+                                                  "Confirm Student Registration"),
+                                              content: Text(
+                                                  "Are you sure you want to confirm the registration of ${data2['FirstName']} ${data2["LastName"]}?"),
+                                              actions: <Widget>[
+                                                OutlinedButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () {
+                                                    updateUser(data2["Key"], selectedPackages[index]!);
+                                                    Navigator.of(context)
+                                                        .pop();
+                                                    Navigator.of(context)
+                                                        .pop();
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                        const BottomBar(
+                                                            1),
+                                                      ),
+                                                    );
+                                                    sendMail(data2);
+                                                    getStudentData();
+                                                  },
+                                                )
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                          backgroundColor: const Color(0xff2a446b)),
+                                      child: const Text("Confirm",
+                                          style: TextStyle(color: Colors.white)),
                                     ),
-                                    itemHeight:
-                                        MediaQuery.of(context).size.width *
-                                            0.15,
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Visibility(
-                                          visible: visible,
-                                          child: TextButton(
-                                            onPressed: () async {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    title: const Text(
-                                                        "Confirm Student Registration"),
-                                                    content: Text(
-                                                        "Are you sure you want to confirm the registration of ${data2['FirstName']} ${data2["LastName"]}."),
-                                                    actions: <Widget>[
-                                                      OutlinedButton(
-                                                        child:
-                                                            const Text('Yes'),
-                                                        onPressed: () async {
-                                                          bool theory = false,
-                                                              practical = false,
-                                                              papers = false;
-                                                          switch (selectedPackage) {
-                                                            case "1":
-                                                              theory = true;
-                                                              break;
-                                                            case "2":
-                                                              practical = true;
-                                                              break;
-                                                            case "3":
-                                                              papers = true;
-                                                              break;
-                                                            case "4":
-                                                              theory = true;
-                                                              practical = true;
-                                                              break;
-                                                            case "5":
-                                                              theory = true;
-                                                              practical = true;
-                                                              papers = true;
-                                                          }
-                                                          final updatedData = {
-                                                            "Visibility": true,
-                                                            "Theory": theory,
-                                                            "Practical":
-                                                                practical,
-                                                            "Papers": papers
-                                                          };
-                                                          final userRef = FirebaseDatabase
-                                                                  .instance
-                                                                  .ref()
-                                                                  .child("ProgrammerProdigies/tblStudent")
-                                                                  .child(data2["Key"]);
-                                                          await userRef.update(updatedData);
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  const BottomBar(
-                                                                      1),
-                                                            ),
-                                                          );
-                                                          // 'Key': key,
-                                                          // 'FirstName': value["FirstName"],
-                                                          // 'LastName': value["LastName"],
-                                                          // 'Email': value["Email"],
-                                                          // 'ContactNumber': value["ContactNumber"],
-                                                          // 'Gender': value["Gender"],
-                                                          // 'Semester': value["Semester"],
-                                                          // 'FCMToken': value["FCMToken"],
-                                                          // 'Visibility': value["Visibility"],
-                                                          sendMail(data2);
-                                                          getStudentData();
-                                                        },
-                                                      )
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            style: TextButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color(0xff2a446b),
-                                            ),
-                                            child: const Text(
-                                              "Confirm",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
                                 ],
                               ),
                             ),
                             Positioned(
-                              top: 5,
+                              top: 0.1,
                               right: 5,
                               child: Container(
                                 decoration: BoxDecoration(
@@ -397,21 +260,13 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
                 } else {
                   return Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Lottie.asset(
-                          'assets/Animation/no_data_found.json',
-                          width: MediaQuery.of(context).size.width * 0.6,
-                          height: MediaQuery.of(context).size.height * 0.3,
-                          // repeat: false,
-                          fit: BoxFit.cover,
-                        ),
+                        Lottie.asset('assets/Animation/no_data_found.json',
+                            width: MediaQuery.of(context).size.width * 0.6),
                         const SizedBox(height: 16),
-                        const Text(
-                          'No pending students requests found',
-                          style: TextStyle(fontSize: 25),
-                          textAlign: TextAlign.center,
-                        ),
+                        const Text('No pending student requests found',
+                            style: TextStyle(fontSize: 25),
+                            textAlign: TextAlign.center),
                       ],
                     ),
                   );
@@ -421,7 +276,6 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
               }
             },
           ),
-          //
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -434,11 +288,42 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
         },
         backgroundColor: const Color(0xff2a446b),
         tooltip: "Add New student.",
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
+  }
+
+  Future<void> updateUser(String key, String selectedPackage) async {
+    bool theory = false, practical = false, papers = false;
+    switch (selectedPackage) {
+      case "1":
+        theory = true;
+        break;
+      case "2":
+        practical = true;
+        break;
+      case "3":
+        papers = true;
+        break;
+      case "4":
+        theory = true;
+        practical = true;
+        break;
+      case "5":
+        theory = true;
+        practical = true;
+        papers = true;
+    }
+    final updatedData = {
+      "Visibility": true,
+      "Theory": theory,
+      "Practical": practical,
+      "Papers": papers
+    };
+    final userRef = FirebaseDatabase.instance
+        .ref()
+        .child("ProgrammerProdigies/tblStudent")
+        .child(key);
+    await userRef.update(updatedData);
   }
 }

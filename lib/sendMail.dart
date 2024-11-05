@@ -1,3 +1,6 @@
+// ignore_for_file: file_names
+
+import 'package:flutter/foundation.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
@@ -6,7 +9,6 @@ Future<void> sendMail(Map data2) async {
   // you have two-factor authentication enabled and created an App password.
   // Search for "gmail app password 2fa"
   // The alternative is to use oauth.
-  print("data from sendMail ${data2["FirstName"]}");
   String username = 'programmerprodigies@gmail.com';
   String password = 'yfywwsbkbnhmixha';
 
@@ -25,11 +27,17 @@ Future<void> sendMail(Map data2) async {
 
   try {
     final sendReport = await send(message, smtpServer);
-    print('Message sent: $sendReport');
+    if (kDebugMode) {
+      print('Message sent: $sendReport');
+    }
   } on MailerException catch (e) {
-    print('Message not sent.');
+    if (kDebugMode) {
+      print('Message not sent.');
+    }
     for (var p in e.problems) {
-      print('Problem: ${p.code}: ${p.msg}');
+      if (kDebugMode) {
+        print('Problem: ${p.code}: ${p.msg}');
+      }
     }
   }
 }

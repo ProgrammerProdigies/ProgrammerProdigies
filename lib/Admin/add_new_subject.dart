@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:programmer_prodigies/Admin/subject_page.dart';
 import 'package:programmer_prodigies/Models/subject_model.dart';
 
 class AdminAddNewSubject extends StatefulWidget {
@@ -34,7 +35,7 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add new subject ${widget.semester}"),
+        title: const Text("Add new subject"),
       ),
       body: Stack(
         children: [
@@ -129,7 +130,7 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
                                   BorderRadius.all(Radius.circular(20)),
                             ),
                             child: ElevatedButton(
-                              onPressed: () async {
+                              onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   var subject = subjectController.text;
                                   String? category;
@@ -144,21 +145,29 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
                                   } else {
                                     category = selectedCategory;
                                   }
-                                  SubjectModel regobj = SubjectModel(
-                                      subject, widget.semester, category!, "true");
+                                  SubjectModel regobj = SubjectModel(subject,
+                                      widget.semester, category!, "true");
                                   dbRef.push().set(regobj.toJson());
                                   showDialog(
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
                                         title: const Text("Subject Added"),
-                                        content: const Text("Subject added successfully..!!"),
+                                        content: const Text(
+                                            "Subject added successfully..!!"),
                                         actions: <Widget>[
                                           OutlinedButton(
                                             child: const Text('OK'),
                                             onPressed: () {
-                                              Navigator.of(context).pop();
-                                              Navigator.of(context).pop();
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => AdminSubjectPage(widget.semester),
+                                                ),
+                                              );
                                             },
                                           )
                                         ],

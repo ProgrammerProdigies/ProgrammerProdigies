@@ -386,7 +386,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'No Semesters found',
+                      'No Chapters found',
                       style: TextStyle(fontSize: 25),
                       textAlign: TextAlign.center,
                     ),
