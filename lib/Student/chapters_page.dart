@@ -70,7 +70,7 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StudentViewChapterPDF(chapters[index]["PDFName"]),
+        builder: (context) => StudentViewChapterPDF(filteredChapters[index]["PDFName"]),
       ),
     );
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -24,6 +26,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
 
   List<Map> subjects = [];
   List<Map> chapters = [];
+  List<Map> filteredChapters = [];
   String viewMode = "Normal";
 
   Future<List<Map>> getPackagesData() async {
@@ -172,7 +175,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
           } else if (snapshot.hasData) {
             chapters = snapshot.data!; // Update chapters with fetched data
             // Filter chapters based on the subjectKey
-            List<Map> filteredChapters = chapters
+            filteredChapters = chapters
                 .where((chapter) => chapter["SubjectKey"] == widget.subjectKey)
                 .toList();
 
@@ -408,7 +411,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
       ),
     );
   }
-
+  // work here
   void handleCardTap(BuildContext context, int index) async {
     TextEditingController nameController = TextEditingController(text: chapters[index]["chapterName"]);
     String pdfName = '';
@@ -417,7 +420,7 @@ class _AdminChaptersPageState extends State<AdminChaptersPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminViewChapterPDF(chapters[index]["PDFName"]),
+          builder: (context) => AdminViewChapterPDF(filteredChapters[index]["PDFName"]),
         ),
       );
     } else if (viewMode == "Edit") {

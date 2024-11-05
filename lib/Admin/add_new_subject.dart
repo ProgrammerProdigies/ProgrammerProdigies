@@ -145,7 +145,7 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
                                     category = selectedCategory;
                                   }
                                   SubjectModel regobj = SubjectModel(
-                                      subject, widget.semester, category!);
+                                      subject, widget.semester, category!, "true");
                                   dbRef.push().set(regobj.toJson());
                                   showDialog(
                                     context: context,

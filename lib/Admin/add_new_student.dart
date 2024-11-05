@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Models/register_model.dart';
+import 'package:programmer_prodigies/sendMail.dart';
 
 import '../firebase_api.dart';
 
@@ -388,6 +389,7 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                         "",
                                         true, theory, practical, papers);
                                     dbRef.push().set(regobj.toJson());
+                                    sendMail(regobj.toJson());
                                     showDialog(
                                       context: context,
                                       builder: (context) {
@@ -415,7 +417,7 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
                               ),
-                              child: const Text("Sign up",
+                              child: const Text("Add student",
                                   style: TextStyle(color: Colors.white)),
                             ),
                           ),

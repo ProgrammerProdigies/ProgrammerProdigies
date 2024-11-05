@@ -40,21 +40,10 @@ class _StudentHomePageState extends State<StudentHomePage> {
     var Practical = (await getData("Practical"))!;
     var Papers = (await getData("Papers"))!;
 
-    if (Theory == "true") {
-      theory = true;
-    } else {
-      theory = false;
-    }
-    if (Practical == "true") {
-      practical = true;
-    } else {
-      practical = false;
-    }
-    if (Papers == "true") {
-      papers = true;
-    } else {
-      papers = false;
-    }
+    theory = Theory == "true";
+    practical = Practical == "true";
+    papers = Papers == "true";
+
     subjects.clear();
 
     await dbRef.once().then((event) {
@@ -66,6 +55,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             "Semester": value["Semester"],
             "Subject": value["SubjectName"],
             "Category": value["Category"],
+            "Visibility": value["Visibility"],
           });
         });
       }
@@ -76,42 +66,33 @@ class _StudentHomePageState extends State<StudentHomePage> {
         .where((subject) => subject["Semester"] == studentSemester)
         .toList();
 
-    // Second filter by Category Theory
-    filteredTheorySubjects = filteredSubjects
-        .where((subject) => subject["Category"] == "Theory")
-        .toList();
+    // Filter subjects by each category and add to packageSubjects if the condition is true
     if (theory) {
-      packageSubjects = [...filteredTheorySubjects];
+      packageSubjects.addAll(filteredSubjects
+          .where((subject) => subject["Category"] == "Theory")
+          .toList());
     }
-
-    filteredPracticalSubjects = filteredSubjects
-        .where((subject) => subject["Category"] == "Practical")
-        .toList();
 
     if (practical) {
-      // Second filter by Category Practical
-      packageSubjects = [
-        ...filteredPracticalSubjects,
-      ];
+      packageSubjects.addAll(filteredSubjects
+          .where((subject) => subject["Category"] == "Practical")
+          .toList());
     }
 
-    // Second filter by Category papers
-    filteredPapersSubjects = filteredSubjects
-        .where((subject) => subject["Category"] == "Papers")
-        .toList();
     if (papers) {
-      packageSubjects = [
-        ...filteredPapersSubjects,
-      ];
+      packageSubjects.addAll(filteredSubjects
+          .where((subject) => subject["Category"] == "Papers")
+          .toList());
     }
 
-    // Second filter by Category papers
+    // Filter final subjects by visibility
     finalSubjects = packageSubjects
-        .where((subject) => subject["Visibility"] == "true")
+        .where((subject) => subject["Visibility"] == true)
         .toList();
 
     return finalSubjects;
   }
+
 
   void toggleViewMode() {
     setState(() {

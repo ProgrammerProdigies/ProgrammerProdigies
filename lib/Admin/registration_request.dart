@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Admin/add_new_student.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmer_prodigies/sendMail.dart';
 
 class AdminRegistrationRequest extends StatefulWidget {
   const AdminRegistrationRequest({super.key});
@@ -292,8 +293,7 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
                                                           bool theory = false,
                                                               practical = false,
                                                               papers = false;
-                                                          switch (
-                                                              selectedPackage) {
+                                                          switch (selectedPackage) {
                                                             case "1":
                                                               theory = true;
                                                               break;
@@ -337,6 +337,16 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
                                                                       1),
                                                             ),
                                                           );
+                                                          // 'Key': key,
+                                                          // 'FirstName': value["FirstName"],
+                                                          // 'LastName': value["LastName"],
+                                                          // 'Email': value["Email"],
+                                                          // 'ContactNumber': value["ContactNumber"],
+                                                          // 'Gender': value["Gender"],
+                                                          // 'Semester': value["Semester"],
+                                                          // 'FCMToken': value["FCMToken"],
+                                                          // 'Visibility': value["Visibility"],
+                                                          sendMail(data2);
                                                           getStudentData();
                                                         },
                                                       )
