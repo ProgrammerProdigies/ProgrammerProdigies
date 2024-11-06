@@ -288,12 +288,12 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                               children: [
                                 Image.asset(
                                   "assets/Logo/Programmer.png",
-                                  width: MediaQuery.of(context).size.width * 0.29,
+                                  width: MediaQuery.of(context).size.width * 0.24,
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(5),
                                   child: SizedBox(
-                                    height: MediaQuery.of(context).size.width * 0.15,
+                                    height: MediaQuery.of(context).size.width * 0.2,
                                     child: Column(
                                       children: [
                                         Padding(

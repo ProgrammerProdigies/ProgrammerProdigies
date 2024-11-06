@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmer_prodigies/Student/view_pdf.dart';
@@ -8,7 +9,9 @@ class StudentChaptersPage extends StatefulWidget {
   final String subjectName;
   final String studentSemester;
 
-  const StudentChaptersPage(this.subjectKey, this.subjectName,this.studentSemester,{super.key});
+  const StudentChaptersPage(
+      this.subjectKey, this.subjectName, this.studentSemester,
+      {super.key});
 
   @override
   State<StudentChaptersPage> createState() => _StudentChaptersPageState();
@@ -46,8 +49,8 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
     });
     filteredChapters = chapters
         .where((chapter) =>
-    chapter["SubjectKey"] == widget.subjectKey.toString() &&
-        chapter["Visibility"] == true)
+            chapter["SubjectKey"] == widget.subjectKey.toString() &&
+            chapter["Visibility"] == true)
         .toList();
     return chapters;
   }
@@ -58,9 +61,9 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
         .child('ProgrammerProdigies/tblSemester/${widget.studentSemester}');
     DatabaseEvent databaseEventStudent = await dbRef.once();
     DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
-    for(var x in dataSnapshotStudent.children){
+    for (var x in dataSnapshotStudent.children) {
       data = x.value;
-      if(data.toString().contains("Semester")){
+      if (data.toString().contains("Semester")) {
         break;
       }
     }
@@ -70,7 +73,8 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StudentViewChapterPDF(filteredChapters[index]["PDFName"]),
+        builder: (context) =>
+            StudentViewChapterPDF(filteredChapters[index]["PDFName"]),
       ),
     );
   }
@@ -94,7 +98,7 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
           } else if (snapshot.hasData) {
             if (filteredChapters.isNotEmpty) {
               return Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(1),
                 child: GridView.builder(
                   physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -123,8 +127,8 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                 children: [
                                   Image.asset(
                                     "assets/Logo/Programmer.png",
-                                    width: MediaQuery.of(context).size.width *
-                                        0.27,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -137,43 +141,47 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                                   .width *
                                               0.2,
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
-                                                child: Text(
-                                                  "Semester: $data",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
+                                                padding: const EdgeInsets.all(0),
+                                                child: SizedBox(
+                                                  height: MediaQuery.of(context).size.width * 0.2,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(bottom: 4),
+                                                        child: Text(
+                                                          "Semester: $data",
+                                                          style: const TextStyle(
+                                                            fontSize: 15.5,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(bottom: 4),
+                                                        child: Text(
+                                                          "Subject: ${widget.subjectName}",
+                                                          style: const TextStyle(
+                                                            fontSize: 15.5,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Flexible(
+                                                        child: Text(
+                                                          "Chapters: ${chapter["ChapterName"]}",
+                                                          style: const TextStyle(
+                                                            fontSize: 15.5,
+                                                            color: Colors.white,
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                          maxLines: 1,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
-                                                child: Text(
-                                                  "Subject: ${widget.subjectName}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.03,
-                                                child: Text(
-                                                  "Chapters: ${chapter["ChapterName"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
-                                                  ),
-                                                  softWrap: true,
                                                 ),
                                               ),
                                             ],

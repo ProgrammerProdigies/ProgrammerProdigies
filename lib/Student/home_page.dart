@@ -87,7 +87,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
     // Filter final subjects by visibility
     finalSubjects = packageSubjects
-        .where((subject) => subject["Visibility"] == true)
+        .where((subject) => subject["Visibility"] == "true")
         .toList();
 
     return finalSubjects;
@@ -166,17 +166,18 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           children: [
                             Image.asset(
                               "assets/Logo/Programmer.png",
-                              width: MediaQuery.of(context).size.width * 0.29,
+                              width: MediaQuery.of(context).size.width * 0.25,
                             ),
                             Padding(
                               padding: const EdgeInsets.all(0),
                               child: SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.width * 0.15,
+                                    MediaQuery.of(context).size.width * 0.2,
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.all(0),
+                                      padding: const EdgeInsets.only(left: 10),
                                       child: Text(
                                         finalSubjects[index]["Subject"],
                                         style: const TextStyle(
