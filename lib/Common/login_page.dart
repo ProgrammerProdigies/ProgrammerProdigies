@@ -12,6 +12,7 @@ import 'package:programmer_prodigies/Student/contact.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
 import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -417,6 +418,15 @@ class _LoginPageState extends State<LoginPage> {
             } else if (FCMToken != fcmToken) {
               msg =
                   "You already have logged in some other phone, you can not login with this device.";
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.remove("FirstName");
+              prefs.remove("LastName");
+              prefs.remove("Semester");
+              prefs.remove("StudentEmail");
+              prefs.remove("Theory");
+              prefs.remove("Practical");
+              prefs.remove("Papers");
+              prefs.remove("key");
             }
           } else if (semData == "false") {
             count = count + 1;

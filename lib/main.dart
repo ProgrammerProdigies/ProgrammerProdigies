@@ -138,6 +138,18 @@ class _SplashScreenState extends State<SplashScreen> {
           await userRef.update(updatedData);
           page = const StudentHomePage();
           return;
+        } else {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.remove("FirstName");
+          prefs.remove("LastName");
+          prefs.remove("Semester");
+          prefs.remove("StudentEmail");
+          prefs.remove("Theory");
+          prefs.remove("Practical");
+          prefs.remove("Papers");
+          prefs.remove("key");
+          page = const MyApp();
+          return;
         }
       }
       return;

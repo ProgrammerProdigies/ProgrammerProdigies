@@ -78,100 +78,97 @@ class _UserProfilePageState extends State<UserProfilePage> {
         backgroundColor: const Color(0xff2a446b),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.65,
-        child: Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          margin: const EdgeInsets.all(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Profile Information',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+      body: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.all(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Profile Information',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const Divider(height: 30, color: Colors.grey),
+              ListTile(
+                title: const Text(
+                  'Name',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(name),
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ListTile(
+                title: const Text(
+                  'Email',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(email),
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ListTile(
+                title: const Text(
+                  'Semester',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(semester),
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ListTile(
+                title: const Text(
+                  'Contact No',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(phone),
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ElevatedButton(
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.remove("FirstName");
+                  prefs.remove("LastName");
+                  prefs.remove("Semester");
+                  prefs.remove("StudentEmail");
+                  prefs.remove("Theory");
+                  prefs.remove("Practical");
+                  prefs.remove("Papers");
+                  prefs.remove("key");
+                  final updatedData = {"FCMToken": ""};
+                  final userRef = FirebaseDatabase.instance
+                      .ref()
+                      .child("ProgrammerProdigies/tblStudent")
+                      .child(key);
+                  await userRef.update(updatedData);
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff2a446b),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                const Divider(height: 30, color: Colors.grey),
-                ListTile(
-                  title: const Text(
-                    'Name',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(name),
+                child: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.white),
                 ),
-                const Divider(height: 20, color: Colors.grey),
-                ListTile(
-                  title: const Text(
-                    'Email',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(email),
-                ),
-                const Divider(height: 20, color: Colors.grey),
-                ListTile(
-                  title: const Text(
-                    'Semester',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(semester),
-                ),
-                const Divider(height: 20, color: Colors.grey),
-                ListTile(
-                  title: const Text(
-                    'Contact No',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(phone),
-                ),
-                const Divider(height: 20, color: Colors.grey),
-                ElevatedButton(
-                  onPressed: () async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    prefs.remove("FirstName");
-                    prefs.remove("LastName");
-                    prefs.remove("Semester");
-                    prefs.remove("StudentEmail");
-                    prefs.remove("Theory");
-                    prefs.remove("Practical");
-                    prefs.remove("Papers");
-                    prefs.remove("key");
-                    final updatedData = {"FCMToken": ""};
-                    final userRef = FirebaseDatabase.instance
-                        .ref()
-                        .child("ProgrammerProdigies/tblStudent")
-                        .child(key);
-                    await userRef.update(updatedData);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff2a446b),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text(
-                    "Logout",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
         ),
       ),
