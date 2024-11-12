@@ -1,6 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Common/login_page.dart';
@@ -15,13 +18,28 @@ class AdminProfilePageAndStudentAddPage extends StatefulWidget {
 
 class _AdminProfilePageAndStudentAddPageState
     extends State<AdminProfilePageAndStudentAddPage> {
+  late String imagePath;
+  final picker = ImagePicker();
+  late String fileName;
+  File? _image;
+  bool isUploading = false; // Flag for tracking upload status
+
   Map<String, String> profileData = {
     'name': 'Admin',
     'email': "programmerprodigies@gmail.com",
   };
 
   @override
+  void initState() {
+    super.initState();
+    imagePath =
+        "https://firebasestorage.googleapis.com/v0/b/programmer-prodigies.appspot.com/o/QRCode%2FQR.jpg?alt=media";
+  }
+
+  @override
   Widget build(BuildContext context) {
+    imagePath =
+        "https://firebasestorage.googleapis.com/v0/b/programmer-prodigies.appspot.com/o/QRCode%2FQR.jpg?alt=media";
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -57,8 +75,6 @@ class _AdminProfilePageAndStudentAddPageState
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // Name Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -79,8 +95,6 @@ class _AdminProfilePageAndStudentAddPageState
                       ),
                       const SizedBox(height: 8),
                       Divider(color: Colors.grey[300]),
-
-                      // Email Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -102,9 +116,7 @@ class _AdminProfilePageAndStudentAddPageState
                       ),
                       const SizedBox(height: 8),
                       Divider(color: Colors.grey[300]),
-
-                      const SizedBox(height: 16), // Adjusted height for spacing
-
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () async {
                           SharedPreferences prefs =
@@ -131,6 +143,73 @@ class _AdminProfilePageAndStudentAddPageState
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1),
+                                child: _image != null
+                                    ? Image.file(
+                                        _image!,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.17,
+                                        width:
+                                            MediaQuery.of(context).size.height *
+                                                0.17,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.network(
+                                        imagePath,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.17,
+                                        width:
+                                            MediaQuery.of(context).size.height *
+                                                0.17,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ElevatedButton.icon(
+                              icon: const Icon(
+                                Icons.cloud_upload,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                "Upload Image",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xff2a446b)),
+                              onPressed: () {
+                                getImage();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          uploadImage(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff2a446b)),
+                        child: const Text(
+                          "Change the QR",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      if (isUploading)
+                        const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(),
+                        ),
                     ],
                   ),
                 ),
@@ -140,5 +219,47 @@ class _AdminProfilePageAndStudentAddPageState
         ),
       ),
     );
+  }
+
+  Future getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+        fileName = basename(_image!.path);
+      }
+    });
+  }
+
+  Future<void> uploadImage(BuildContext context) async {
+    if (_image != null) {
+      setState(() {
+        isUploading = true;
+      });
+
+      Reference firebaseStorageRef =
+          FirebaseStorage.instance.ref().child("QRCode/QR.jpg");
+      await firebaseStorageRef.putFile(
+        _image!,
+        SettableMetadata(
+            customMetadata: {"updated": DateTime.now().toString()}),
+      );
+
+      // Retrieve the new download URL with token and update the image path
+      String updatedImageUrl = await firebaseStorageRef.getDownloadURL();
+      setState(() {
+        imagePath = updatedImageUrl;
+        isUploading = false; // Hide progress indicator after upload completes
+      });
+      _showSnackbar(context, "QR Code changed...");
+    }
+  }
+
+  void _showSnackbar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 2),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

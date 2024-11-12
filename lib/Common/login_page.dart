@@ -7,7 +7,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
-import 'package:programmer_prodigies/Common/adminLoginCredentials.dart';
 import 'package:programmer_prodigies/Student/contact.dart';
 import 'package:programmer_prodigies/Student/home_page.dart';
 import 'package:programmer_prodigies/Student/registration_page.dart';
@@ -325,7 +324,51 @@ class _LoginPageState extends State<LoginPage> {
     var password = controllerPassword.text;
     Query dbRef2;
     var count = 0;
-    if (email == EMAIL && password == PASSWORD) {
+    if (email == "programmerprodigies@gmail.com") {
+      dbRef2 = FirebaseDatabase.instance
+          .ref()
+          .child('ProgrammerProdigies/tblAdmin')
+          .orderByChild("Email")
+          .equalTo(email);
+      String msg = "Invalid email or Password..! Please check..!!";
+      Map data;
+      await dbRef2.once().then((documentSnapshot) async {
+        for (var x in documentSnapshot.snapshot.children) {
+          String? key = x.key;
+          data = x.value as Map;
+          if (data["Email"] == email &&
+              data["Password"].toString() == password) {
+            await saveData('email', data["Email"]);
+            await saveData('key', key);
+            count = count + 1;
+            Navigator.pop(context);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const BottomBar(0)));
+          } else {
+            msg = "Sorry..! Wrong Username or Password";
+            _showSnackbar(scaffoldContext, msg);
+          }
+        }
+        if (count == 0) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Alert Message"),
+                content: Text(msg.toString()),
+                actions: <Widget>[
+                  OutlinedButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        }
+      });
       count = count + 1;
       await saveData("AdminEmail", email);
       Navigator.pop(context);
@@ -337,7 +380,7 @@ class _LoginPageState extends State<LoginPage> {
           .child('ProgrammerProdigies/tblStudent')
           .orderByChild("Email")
           .equalTo(email);
-      String msg = "Invalid email or Password..! Please check..!!";
+      String msg = "Invalid email or Password..!";
       Map data;
       await dbRef2.once().then((documentSnapshot) async {
         for (var x in documentSnapshot.snapshot.children) {
