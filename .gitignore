@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+lib/Common/adminLoginCredentials.dart
 
 # IntelliJ related
 *.iml
