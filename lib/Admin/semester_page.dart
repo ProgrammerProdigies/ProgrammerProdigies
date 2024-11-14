@@ -4,8 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/subject_page.dart';
-import 'package:programmer_prodigies/Models/sem_model.dart';
+import 'package:programmerprodigies/Admin/subject_page.dart';
+import 'package:programmerprodigies/Models/sem_model.dart';
 
 class AdminSemesterPage extends StatefulWidget {
   const AdminSemesterPage({super.key});

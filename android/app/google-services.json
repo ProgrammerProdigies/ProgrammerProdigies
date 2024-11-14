@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:373790027911:android:6fc62beec8e366e5198822",
+        "mobilesdk_app_id": "1:373790027911:android:ac7a01cab5e5d7e5198822",
         "android_client_info": {
-          "package_name": "com.example.programmer_prodigies"
+          "package_name": "io.github.programmerprodigies.programmer_prodigies"
         }
       },
       "oauth_client": [],

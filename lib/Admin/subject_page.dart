@@ -1,10 +1,13 @@
+// ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/add_new_subject.dart';
-import 'package:programmer_prodigies/Admin/chapters_page.dart';
+import 'package:programmerprodigies/Admin/add_new_subject.dart';
+import 'package:programmerprodigies/Admin/chapters_page.dart';
 
 class AdminSubjectPage extends StatefulWidget {
   final String semester;
@@ -46,7 +49,9 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
       }
       setState(() {});
     } catch (e) {
-      print("Error fetching chapters: $e");
+      if (kDebugMode) {
+        print("Error fetching chapters: $e");
+      }
     }
     return chapters;
   }
@@ -70,7 +75,9 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
       }
       setState(() {});
     } catch (e) {
-      print("Error fetching subjects: $e");
+      if (kDebugMode) {
+        print("Error fetching subjects: $e");
+      }
     }
     return subjects;
   }
@@ -216,7 +223,9 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
         }
       }
     } catch (e) {
-      print("Error deleting chapters and PDFs: $e");
+      if (kDebugMode) {
+        print("Error deleting chapters and PDFs: $e");
+      }
     }
   }
 
@@ -225,7 +234,9 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
       Reference pdfRef = FirebaseStorage.instance.ref().child('chapters_pdfs/$pdfName');
       await pdfRef.delete();
     } catch (e) {
-      print("Error deleting PDF: $e");
+      if (kDebugMode) {
+        print("Error deleting PDF: $e");
+      }
     }
   }
 

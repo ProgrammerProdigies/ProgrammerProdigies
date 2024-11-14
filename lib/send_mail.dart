@@ -10,7 +10,7 @@ Future<void> sendMail(Map data2) async {
   // Search for "gmail app password 2fa"
   // The alternative is to use oauth.
   String username = 'programmerprodigies@gmail.com';
-  String password = 'yfywwsbkbnhmixha';
+  String password = 'fezydjictcjxgddr';
 
   final smtpServer = gmail(username, password);
   // Use the SmtpServer class to configure an SMTP server:

@@ -1,9 +1,9 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Admin/add_new_student.dart';
-import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
-import 'package:programmer_prodigies/sendMail.dart';
+import 'package:programmerprodigies/Admin/add_new_student.dart';
+import 'package:programmerprodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmerprodigies/send_mail.dart';
 
 class AdminRegistrationRequest extends StatefulWidget {
   const AdminRegistrationRequest({super.key});
@@ -318,7 +318,8 @@ class _AdminRegistrationRequestState extends State<AdminRegistrationRequest> {
       "Visibility": true,
       "Theory": theory,
       "Practical": practical,
-      "Papers": papers
+      "Papers": papers,
+      "Demo": false
     };
     final userRef = FirebaseDatabase.instance
         .ref()

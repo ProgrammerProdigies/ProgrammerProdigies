@@ -3,9 +3,9 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Common/login_page.dart';
-import 'package:programmer_prodigies/Models/register_model.dart';
-import 'package:programmer_prodigies/firebase_api.dart';
+import 'package:programmerprodigies/Common/login_page.dart';
+import 'package:programmerprodigies/Models/register_model.dart';
+import 'package:programmerprodigies/firebase_api.dart';
 
 class RegistrationPage extends StatefulWidget {
   final List<Map<String, dynamic>> displaySemesterMap;
@@ -20,7 +20,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Map> semester = [];
   DatabaseReference dbRef =
-      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblStudent');
+  FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblStudent');
 
   TextEditingController controllerPassword = TextEditingController();
   TextEditingController controllerConfirmPassword = TextEditingController();
@@ -89,7 +89,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   width: double.infinity,
                   child: Padding(
                     padding:
-                        const EdgeInsets.only(top: 40, right: 20, left: 20),
+                    const EdgeInsets.only(top: 40, right: 20, left: 20),
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
@@ -101,7 +101,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                   padding: const EdgeInsets.all(10),
                                   child: SizedBox(
                                     width:
-                                        MediaQuery.of(context).size.width * 0.4,
+                                    MediaQuery.of(context).size.width * 0.4,
                                     child: TextFormField(
                                       controller: controllerFirstName,
                                       decoration: const InputDecoration(
@@ -118,7 +118,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                   padding: const EdgeInsets.all(10),
                                   child: SizedBox(
                                     width:
-                                        MediaQuery.of(context).size.width * 0.4,
+                                    MediaQuery.of(context).size.width * 0.39,
                                     child: TextFormField(
                                       controller: controllerLastname,
                                       decoration: const InputDecoration(
@@ -214,7 +214,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             decoration: const InputDecoration(
                               prefixIconColor: Color(0xff2a446b),
                               prefixIcon:
-                                  Icon(Icons.email, color: Color(0xff2a446b)),
+                              Icon(Icons.email, color: Color(0xff2a446b)),
                               labelText: 'Email',
                               hintText: 'Enter Email',
                             ),
@@ -234,7 +234,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             decoration: const InputDecoration(
                               prefixIconColor: Color(0xff2a446b),
                               prefixIcon:
-                                  Icon(Icons.call, color: Color(0xff2a446b)),
+                              Icon(Icons.call, color: Color(0xff2a446b)),
                               labelText: 'Contact Number',
                               hintText: 'Enter Contact',
                             ),
@@ -291,18 +291,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           DropdownButton<String>(
                             value: selectedSemester,
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
+                            const BorderRadius.all(Radius.circular(10)),
                             style: const TextStyle(color: Colors.black),
                             items: displaySemesterMap
                                 .where((semester) =>
-                                    semester["Visibility"] == "true")
+                            semester["Visibility"] == "true")
                                 .map<DropdownMenuItem<String>>(
-                              (Map<String, dynamic> semester) {
+                                  (Map<String, dynamic> semester) {
                                 return DropdownMenuItem<String>(
                                   value: semester["key"],
                                   child: Text(semester["Semester"],
                                       style:
-                                          const TextStyle(color: Colors.black)),
+                                      const TextStyle(color: Colors.black)),
                                 );
                               },
                             ).toList(),
@@ -321,7 +321,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               color: Colors.grey, // Color of the underline
                             ),
                             itemHeight:
-                                MediaQuery.of(context).size.width * 0.15,
+                            MediaQuery.of(context).size.width * 0.15,
                           ),
                           const SizedBox(
                             height: 10,
@@ -334,13 +334,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 colors: [Color(0xff2a446b), Color(0xff12d3c6)],
                               ),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
+                              BorderRadius.all(Radius.circular(20)),
                             ),
                             child: ElevatedButton(
                               onPressed: () async {
                                 var email = controllerEmail.text;
                                 bool checkEmail =
-                                    await checkEmailFromDatabase(email);
+                                await checkEmailFromDatabase(email);
                                 if (checkEmail) {
                                   showDialog(
                                     context: context,
@@ -369,12 +369,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                         controllerConfirmPassword.text;
                                     var email = controllerEmail.text;
                                     var contact = controllerContact.text;
+                                    var encPassword = encryptString(password);
                                     String? semester;
                                     late String gender;
                                     if (selectedSemester == "0") {
                                       const snackBar = SnackBar(
                                         content:
-                                            Text("Please select semester...!!"),
+                                        Text("Please select semester...!!"),
                                         duration: Duration(seconds: 2),
                                       );
                                       ScaffoldMessenger.of(context)
@@ -385,7 +386,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     if (selectedGender == null) {
                                       const snackBar = SnackBar(
                                         content:
-                                            Text("Please select gender...!!"),
+                                        Text("Please select gender...!!"),
                                         duration: Duration(seconds: 2),
                                       );
                                       ScaffoldMessenger.of(context)
@@ -398,7 +399,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                         firstName,
                                         lastname,
                                         email,
-                                        password,
+                                        encPassword,
                                         contact,
                                         gender,
                                         semester!,
@@ -407,6 +408,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                         false,
                                         false,
                                         false,
+                                        true
                                       );
                                       dbRef.push().set(regobj.toJson());
                                       showDialog(
@@ -422,11 +424,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                                 child: const Text('OK'),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (context) =>
-                                                          const LoginPage(),
+                                                      const LoginPage(),
                                                     ),
                                                   );
                                                 },
@@ -438,7 +441,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     } else {
                                       const snackBar = SnackBar(
                                         content:
-                                            Text("Password does not match..!!"),
+                                        Text("Password does not match..!!"),
                                         duration: Duration(seconds: 2),
                                       );
                                       ScaffoldMessenger.of(context)
@@ -479,7 +482,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const LoginPage()),
+                                          const LoginPage()),
                                     );
                                   },
                                   child: const Text(

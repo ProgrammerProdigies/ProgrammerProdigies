@@ -42,18 +42,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCGAYdI3Pqb4z7PSiqMJ8J6CI6U1IQagC8',
-    appId: '1:373790027911:web:9ed7262a9ca0ed92198822',
+    appId: '1:373790027911:web:961fc576ff97c271198822',
     messagingSenderId: '373790027911',
     projectId: 'programmer-prodigies',
     authDomain: 'programmer-prodigies.firebaseapp.com',
     databaseURL: 'https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'programmer-prodigies.appspot.com',
-    measurementId: 'G-97BYJRE7SG',
+    measurementId: 'G-ZTT747ZYWH',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAKu9JCnQn9sVi0B8SUqv8_1tDIWKlMUN8',
-    appId: '1:373790027911:android:6fc62beec8e366e5198822',
+    appId: '1:373790027911:android:ac7a01cab5e5d7e5198822',
     messagingSenderId: '373790027911',
     projectId: 'programmer-prodigies',
     databaseURL: 'https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD9nUMLHhMuXp7FMUEtyk9Ezo7akly8evI',
-    appId: '1:373790027911:ios:c600ffdc5580936e198822',
+    appId: '1:373790027911:ios:75df9e320d944672198822',
     messagingSenderId: '373790027911',
     projectId: 'programmer-prodigies',
     databaseURL: 'https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyD9nUMLHhMuXp7FMUEtyk9Ezo7akly8evI',
-    appId: '1:373790027911:ios:c600ffdc5580936e198822',
+    appId: '1:373790027911:ios:75df9e320d944672198822',
     messagingSenderId: '373790027911',
     projectId: 'programmer-prodigies',
     databaseURL: 'https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -82,12 +82,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyCGAYdI3Pqb4z7PSiqMJ8J6CI6U1IQagC8',
-    appId: '1:373790027911:web:0f82b5f744fa1a78198822',
+    appId: '1:373790027911:web:2f683c88d15390ab198822',
     messagingSenderId: '373790027911',
     projectId: 'programmer-prodigies',
     authDomain: 'programmer-prodigies.firebaseapp.com',
     databaseURL: 'https://programmer-prodigies-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'programmer-prodigies.appspot.com',
-    measurementId: 'G-XEJ376E4XW',
+    measurementId: 'G-WZPWNE0LYG',
   );
 }

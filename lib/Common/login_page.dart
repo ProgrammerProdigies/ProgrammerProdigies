@@ -6,11 +6,12 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
-import 'package:programmer_prodigies/Student/contact.dart';
-import 'package:programmer_prodigies/Student/home_page.dart';
-import 'package:programmer_prodigies/Student/registration_page.dart';
-import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:programmerprodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmerprodigies/Common/change_password.dart';
+import 'package:programmerprodigies/Student/contact.dart';
+import 'package:programmerprodigies/Student/home_page.dart';
+import 'package:programmerprodigies/Student/registration_page.dart';
+import 'package:programmerprodigies/saveSharePreferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -183,6 +184,29 @@ class _LoginPageState extends State<LoginPage> {
                                         labelText: 'Password',
                                         hintText: 'Enter Password',
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const StudentChangePassword()));
+                                          },
+                                          child: const Text(
+                                            "Forgot Password ?",
+                                            style: TextStyle(
+                                              color: Color(0xff2a446b),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(
                                       height: 20,
@@ -416,8 +440,7 @@ class _LoginPageState extends State<LoginPage> {
                   .child(key!);
               await userRef.update(updatedData);
               if (data["Email"] == email &&
-                  data["Password"].toString() == password &&
-                  data['Visibility']) {
+                  data["Password"].toString() == encryptString(password)) {
                 await saveData('FirstName', firstName);
                 await saveData('LastName', lastName);
                 await saveData('Semester', semester);
@@ -429,17 +452,18 @@ class _LoginPageState extends State<LoginPage> {
                 count = count + 1;
                 Navigator.pop(context);
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const StudentHomePage()));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StudentHomePage(),
+                  ),
+                );
               } else {
                 msg = "Sorry..! Wrong email or Password";
                 _showSnackbar(scaffoldContext, msg);
               }
             } else if (FCMToken == fcmToken) {
               if (data["Email"] == email &&
-                  data["Password"].toString() == password &&
-                  data['Visibility']) {
+                  data["Password"].toString() == encryptString(password)) {
                 await saveData('FirstName', firstName);
                 await saveData('LastName', lastName);
                 await saveData('Semester', semester);

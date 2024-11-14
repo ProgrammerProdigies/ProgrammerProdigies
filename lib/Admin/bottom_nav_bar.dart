@@ -2,9 +2,9 @@
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/profile_page.dart';
-import 'package:programmer_prodigies/Admin/registration_request.dart';
-import 'package:programmer_prodigies/Admin/semester_page.dart';
+import 'package:programmerprodigies/Admin/profile_page.dart';
+import 'package:programmerprodigies/Admin/registration_request.dart';
+import 'package:programmerprodigies/Admin/semester_page.dart';
 
 class BottomBar extends StatefulWidget {
   final int selectedIndex;

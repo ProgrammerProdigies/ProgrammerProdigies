@@ -1,7 +1,9 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart'; // Import for clipboard
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -16,23 +18,68 @@ class _ContactUs extends State<ContactUs> {
     super.initState();
   }
 
+  // Modified launchEmail method with clipboard copy fallback
   Future<void> launchEmail() async {
-    final url = Uri.parse('mailto:programmerprodigies@gmail.com');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      throw 'Could not launch email app. User might not have Gmail installed.';
+    final Uri gmailUri = Uri(
+      scheme: 'intent',
+      path: 'mailto:programmerprodigies@gmail.com',
+    );
+
+    try {
+      if (await canLaunchUrl(gmailUri)) {
+        await launchUrl(
+          gmailUri,
+          mode: LaunchMode.externalApplication, // Launch using external app
+        );
+      } else {
+        // If unable to launch email, copy the email address to clipboard
+        await Clipboard.setData(const ClipboardData(text: 'programmerprodigies@gmail.com'));
+        // Show a snackbar to the user
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Email address copied to clipboard. You can use it into your email app.'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // In case of error, copy the email to clipboard
+      await Clipboard.setData(const ClipboardData(text: 'programmerprodigies@gmail.com'));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email address copied to clipboard. You can paste it into your email app.'),
+          ),
+        );
+      }
+      if (kDebugMode) {
+        print('Error launching email: $e');
+      }
     }
   }
 
-  // Future<void> makePhoneCall() async {
-  //   final url = Uri.parse("tel:+919016204659");
-  //   if (await canLaunchUrl(url)) {
-  //     await launchUrl(url);
-  //   } else {
-  //     throw 'Could not launch phone app';
-  //   }
-  // }
+  Future<void> makePhoneCall() async {
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: '+918849165682',
+    );
+
+    try {
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(
+          phoneUri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        throw 'Could not launch phone app';
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error making phone call: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,42 +110,30 @@ class _ContactUs extends State<ContactUs> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // const SizedBox(height: 8.0),
-            // const Row(
-            //   children: [
-            //     Text(
-            //       'Address:',
-            //       style: TextStyle(fontSize: 16.0),
-            //     ),
-            //     Text(
-            //       ' 123 Main Street, City, Country',
-            //       style: TextStyle(fontSize: 16.0),
-            //     ),
-            //   ],
-            // ),
-            // Row(
-            //   children: [
-            //     const Text(
-            //       'Phone: ',
-            //       style: TextStyle(fontSize: 16.0),
-            //     ),
-            //     TextButton(
-            //       onPressed: makePhoneCall,
-            //       style: ButtonStyle(
-            //         padding: MaterialStateProperty.all(
-            //             EdgeInsets.zero), // Remove padding
-            //       ),
-            //       child: const Text(
-            //         '+91 9016204659',
-            //         style: TextStyle(
-            //             color: Colors.blue,
-            //             decoration: TextDecoration.underline,
-            //             decorationColor: Colors.blue,
-            //             decorationThickness: 2.0),
-            //       ),
-            //     )
-            //   ],
-            // ),
+            const SizedBox(height: 8.0),
+            Row(
+              children: [
+                const Text(
+                  'Phone: ',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                TextButton(
+                  onPressed: makePhoneCall,
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  ),
+                  child: const Text(
+                    '+91 8849165682',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.blue,
+                      decorationThickness: 2.0,
+                    ),
+                  ),
+                )
+              ],
+            ),
             Row(
               children: [
                 const Text(
@@ -108,8 +143,7 @@ class _ContactUs extends State<ContactUs> {
                 TextButton(
                   onPressed: launchEmail,
                   style: ButtonStyle(
-                    padding: MaterialStateProperty.all(
-                        EdgeInsets.zero), // Remove padding
+                    padding: MaterialStateProperty.all(EdgeInsets.zero),
                   ),
                   child: const Text(
                     'programmerprodigies@gmail.com',
@@ -118,7 +152,7 @@ class _ContactUs extends State<ContactUs> {
                       decoration: TextDecoration.underline,
                       decorationColor: Colors.blue,
                       decorationThickness: 2.0,
-                      fontSize: 17
+                      fontSize: 17,
                     ),
                   ),
                 )

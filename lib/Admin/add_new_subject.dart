@@ -1,7 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/subject_page.dart';
-import 'package:programmer_prodigies/Models/subject_model.dart';
+import 'package:programmerprodigies/Admin/subject_page.dart';
+import 'package:programmerprodigies/Models/subject_model.dart';
 
 class AdminAddNewSubject extends StatefulWidget {
   final String semester;
@@ -29,6 +30,7 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
     {"key": "Theory", "Category": "Theory", "Visibility": "true"},
     {"key": "Practical", "Category": "Practical", "Visibility": "true"},
     {"key": "Papers", "Category": "Papers", "Visibility": "true"},
+    {"key": "Demo", "Category": "Demo", "Visibility": "true"},
   ];
 
   @override
@@ -100,6 +102,9 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
                               },
                             ).toList(),
                             onChanged: (String? newValue) {
+                              if (kDebugMode) {
+                                print("newValue $newValue");
+                              }
                               setState(() {
                                 selectedCategory = newValue;
                               });
@@ -165,7 +170,9 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => AdminSubjectPage(widget.semester),
+                                                  builder: (context) =>
+                                                      AdminSubjectPage(
+                                                          widget.semester),
                                                 ),
                                               );
                                             },

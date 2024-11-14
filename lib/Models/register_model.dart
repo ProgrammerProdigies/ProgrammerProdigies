@@ -11,6 +11,7 @@ class RegisterModel {
   late bool theory;
   late bool practical;
   late bool papers;
+  late bool demo;
 
   RegisterModel(
       this.firstName,
@@ -24,7 +25,8 @@ class RegisterModel {
       this.visibility,
       this.theory,
       this.practical,
-      this.papers);
+      this.papers,
+      this.demo);
 
   Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
         'FirstName': firstName,
@@ -38,11 +40,12 @@ class RegisterModel {
         'Visibility': visibility,
         'Theory': theory,
         'Practical': practical,
-        'Papers': papers
+        'Papers': papers,
+        'Demo': demo
       };
 
   @override
   String toString() {
-    return 'RegisterModel{FirstName: $firstName, Lastname: $lastname, email: $email, password: $password, contact: $contact, gender: $gender, Semester: $semester, FCMToken: $fCMToken, Visibility: $visibility, Theory: $theory, Practical: $practical, Papers: $papers}';
+    return 'RegisterModel{FirstName: $firstName, Lastname: $lastname, email: $email, password: $password, contact: $contact, gender: $gender, Semester: $semester, FCMToken: $fCMToken, Visibility: $visibility, Theory: $theory, Practical: $practical, Papers: $papers, Demo $demo}';
   }
 }

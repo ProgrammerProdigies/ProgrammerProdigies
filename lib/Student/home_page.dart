@@ -3,9 +3,9 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Student/chapters_page.dart';
-import 'package:programmer_prodigies/Student/profile_page.dart';
-import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:programmerprodigies/Student/chapters_page.dart';
+import 'package:programmerprodigies/Student/profile_page.dart';
+import 'package:programmerprodigies/saveSharePreferences.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -24,9 +24,10 @@ class _StudentHomePageState extends State<StudentHomePage> {
   List<Map> packageSubjects = [];
 
   late String studentSemester;
-  late bool theory;
-  late bool practical;
-  late bool papers;
+  bool theory = false;
+  bool practical = false;
+  bool papers = false;
+  bool demo = false;
 
   String viewMode = "Normal";
   DatabaseReference dbRef =
@@ -36,10 +37,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
     finalSubjects.clear();
     packageSubjects.clear();
     studentSemester = (await getData("Semester"))!;
+    var Demo = (await getData("Demo"))!;
     var Theory = (await getData("Theory"))!;
     var Practical = (await getData("Practical"))!;
     var Papers = (await getData("Papers"))!;
 
+    demo = Demo == "true";
     theory = Theory == "true";
     practical = Practical == "true";
     papers = Papers == "true";
@@ -66,23 +69,28 @@ class _StudentHomePageState extends State<StudentHomePage> {
         .where((subject) => subject["Semester"] == studentSemester)
         .toList();
 
-    // Filter subjects by each category and add to packageSubjects if the condition is true
-    if (theory) {
-      packageSubjects.addAll(filteredSubjects
-          .where((subject) => subject["Category"] == "Theory")
-          .toList());
-    }
+    if (demo) {
+      packageSubjects.addAll(filteredSubjects);
+    } else {
+      packageSubjects.clear();
+      // Filter subjects by each category and add to packageSubjects if the condition is true
+      if (theory) {
+        packageSubjects.addAll(filteredSubjects
+            .where((subject) => subject["Category"] == "Theory")
+            .toList());
+      }
 
-    if (practical) {
-      packageSubjects.addAll(filteredSubjects
-          .where((subject) => subject["Category"] == "Practical")
-          .toList());
-    }
+      if (practical) {
+        packageSubjects.addAll(filteredSubjects
+            .where((subject) => subject["Category"] == "Practical")
+            .toList());
+      }
 
-    if (papers) {
-      packageSubjects.addAll(filteredSubjects
-          .where((subject) => subject["Category"] == "Papers")
-          .toList());
+      if (papers) {
+        packageSubjects.addAll(filteredSubjects
+            .where((subject) => subject["Category"] == "Papers")
+            .toList());
+      }
     }
 
     // Filter final subjects by visibility
@@ -90,25 +98,70 @@ class _StudentHomePageState extends State<StudentHomePage> {
         .where((subject) => subject["Visibility"] == "true")
         .toList();
 
+    // Custom sort: "Demo" category first, then by "Subject" name
+    finalSubjects.sort((a, b) {
+      if (a["Category"] == "Demo" && b["Category"] != "Demo") return -1;
+      if (a["Category"] != "Demo" && b["Category"] == "Demo") return 1;
+      return a["Subject"].compareTo(b["Subject"]);
+    });
+
     return finalSubjects;
   }
 
 
-  void toggleViewMode() {
-    setState(() {
-      viewMode = viewMode == "Normal" ? "Edit" : "Normal";
-    });
+  void handleCardTap(BuildContext context, int index) {
+    String category = finalSubjects[index]["Category"];
+    bool isSubscribed = (category == "Theory" && theory) ||
+        (category == "Practical" && practical) ||
+        (category == "Papers" && papers);
+    if(category == "Demo"){
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StudentChaptersPage(
+            finalSubjects[index]["key"],
+            finalSubjects[index]["Subject"],
+            studentSemester,
+          ),
+        ),
+      );
+    }else{
+      if (isSubscribed) {
+        // User is subscribed for the selected category, proceed to the next page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentChaptersPage(
+              finalSubjects[index]["key"],
+              finalSubjects[index]["Subject"],
+              studentSemester,
+            ),
+          ),
+        );
+      } else {
+        // User is not subscribed, show the alert dialog once
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Premium Feature"),
+              content: const Text(
+                  "Currently you have not subscribed for this package. Please contact us for more details."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
   }
 
-  void handleCardTap(BuildContext context, int index) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            StudentChaptersPage(finalSubjects[index]["key"], finalSubjects[index]["Subject"], studentSemester),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,8 +224,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                             Padding(
                               padding: const EdgeInsets.all(0),
                               child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.width * 0.2,
+                                height: MediaQuery.of(context).size.width * 0.2,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

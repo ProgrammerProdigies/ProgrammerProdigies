@@ -6,8 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/chapters_page.dart';
-import 'package:programmer_prodigies/Models/chapter_model.dart';
+import 'package:programmerprodigies/Admin/chapters_page.dart';
+import 'package:programmerprodigies/Models/chapter_model.dart';
 
 // class ChapterModel {
 //   late String chapterName;

@@ -4,10 +4,10 @@ import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/Admin/bottom_nav_bar.dart';
-import 'package:programmer_prodigies/Common/login_page.dart';
-import 'package:programmer_prodigies/Student/home_page.dart';
-import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:programmerprodigies/Admin/bottom_nav_bar.dart';
+import 'package:programmerprodigies/Common/login_page.dart';
+import 'package:programmerprodigies/Student/home_page.dart';
+import 'package:programmerprodigies/saveSharePreferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );
   }
@@ -104,7 +105,6 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-
   Future<void> _checkIfLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     adminContains = prefs.containsKey(key);
@@ -115,44 +115,73 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     } else if (studentContains) {
       keyToCheck = (await getKey())!;
-      DatabaseReference dbHospitalRef = FirebaseDatabase.instance
+      var email = await getData("StudentEmail");
+      Query dbRef2;
+      dbRef2 = FirebaseDatabase.instance
           .ref()
-          .child("ProgrammerProdigies/tblStudent/$keyToCheck");
-
-      DatabaseEvent databaseEventStudent = await dbHospitalRef.once();
-      DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
-
-      for (var x in dataSnapshotStudent.children) {
-        String? key = x.key;
-        var data = x.value;
-        var FCMToken = data.toString();
-        if (FCMToken == fcmToken) {
-          page = const StudentHomePage();
-          return;
-        } else if (FCMToken == "") {
-          final updatedData = {"FCMToken": fcmToken};
-          final userRef = FirebaseDatabase.instance
-              .ref()
-              .child("ProgrammerProdigies/tblStudent")
-              .child(key!);
-          await userRef.update(updatedData);
-          page = const StudentHomePage();
-          return;
-        } else {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.remove("FirstName");
-          prefs.remove("LastName");
-          prefs.remove("Semester");
-          prefs.remove("StudentEmail");
-          prefs.remove("Theory");
-          prefs.remove("Practical");
-          prefs.remove("Papers");
-          prefs.remove("key");
-          page = const MyApp();
-          return;
+          .child('ProgrammerProdigies/tblStudent')
+          .orderByChild("Email")
+          .equalTo(email);
+      await dbRef2.once().then((documentSnapshot) async {
+        for (var x in documentSnapshot.snapshot.children) {
+          String? key = x.key;
+          Map data = x.value as Map;
+          String? FCMToken = data["FCMToken"];
+          var firstName = data["FirstName"];
+          var lastName = data["LastName"];
+          var email = data["Email"];
+          var semester = data["Semester"];
+          var theory = data["Theory"].toString();
+          var practical = data["Practical"].toString();
+          var papers = data["Papers"].toString();
+          var demo = data["Demo"].toString();
+          if (FCMToken == fcmToken) {
+            await saveData('FirstName', firstName);
+            await saveData('LastName', lastName);
+            await saveData('Semester', semester);
+            await saveData('StudentEmail', email);
+            await saveData('Theory', theory);
+            await saveData('Practical', practical);
+            await saveData('Papers', papers);
+            await saveData('Demo', demo);
+            await saveData('key', key);
+            page = const StudentHomePage();
+            return;
+          } else if (FCMToken == "") {
+            await saveData('FirstName', firstName);
+            await saveData('LastName', lastName);
+            await saveData('Semester', semester);
+            await saveData('StudentEmail', email);
+            await saveData('Theory', theory);
+            await saveData('Practical', practical);
+            await saveData('Papers', papers);
+            await saveData('Demo', demo);
+            await saveData('key', key);
+            final updatedData = {"FCMToken": fcmToken};
+            final userRef = FirebaseDatabase.instance
+                .ref()
+                .child("ProgrammerProdigies/tblStudent")
+                .child(key!);
+            await userRef.update(updatedData);
+            page = const StudentHomePage();
+            return;
+          } else {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.remove("FirstName");
+            prefs.remove("LastName");
+            prefs.remove("Semester");
+            prefs.remove("StudentEmail");
+            prefs.remove("Theory");
+            prefs.remove("Practical");
+            prefs.remove("Papers");
+            prefs.remove("Demo");
+            prefs.remove("key");
+            page = const MyApp();
+            return;
+          }
         }
-      }
-      return;
+        return;
+      });
     } else {
       page = const LoginPage();
     }

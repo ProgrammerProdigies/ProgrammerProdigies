@@ -1,8 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmer_prodigies/Student/view_pdf.dart';
+import 'package:programmerprodigies/Student/view_pdf.dart';
 
 class StudentChaptersPage extends StatefulWidget {
   final String subjectKey;

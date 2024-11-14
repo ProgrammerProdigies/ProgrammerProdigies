@@ -2,7 +2,8 @@
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:programmer_prodigies/saveSharePreferences.dart';
+import 'package:programmerprodigies/Student/contact.dart';
+import 'package:programmerprodigies/saveSharePreferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Common/login_page.dart';
@@ -167,7 +168,30 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   "Logout",
                   style: TextStyle(color: Colors.white),
                 ),
-              )
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ContactUs()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff2a446b),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "Contact Us",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),
