@@ -82,32 +82,33 @@ class _LoginPageState extends State<LoginPage> {
         body: Stack(
           children: [
             Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Color(0xff2a446b), Color(0xff12d3c6)])),
-                child: const Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 70, right: 235),
-                      child: Text(
-                        "Welcome, ",
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
+              height: double.infinity,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Color(0xff2a446b), Color(0xff12d3c6)])),
+              child: const Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 70, right: 235),
+                    child: Text(
+                      "Welcome, ",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 205),
-                      child: Text(
-                        "LOGIN",
-                        style: TextStyle(
-                            fontSize: 40,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(right: 205),
+                    child: Text(
+                      "LOGIN",
+                      style: TextStyle(
+                          fontSize: 40,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
-                  ],
-                )),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 200),
               child: Container(
@@ -119,205 +120,205 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 height: double.maxFinite,
                 width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50, right: 20, left: 20),
-                  child: Column(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20, left: 20),
-                            child: Form(
-                              key: _formKey,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    TextFormField(
-                                      controller: controllerEmail,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'Please enter email';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                        prefixIcon: Icon(Icons.email_outlined,
-                                            color: Color(0xff2a446b)),
-                                        prefixIconColor: Color(0xff2a446b),
-                                        labelText: 'Email',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        hintText: 'Enter Email',
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                      controller: controllerPassword,
-                                      obscureText: !isPasswordVisible,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'Please enter password';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.lock,
-                                            color: Color(0xff2a446b)),
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            isPasswordVisible
-                                                ? Icons.visibility
-                                                : Icons.visibility_off,
-                                            color: const Color(0xff2a446b),
-                                          ),
-                                          onPressed: () {
-                                            _togglePasswordVisibility(context);
-                                          },
-                                        ),
-                                        prefixIconColor:
-                                            const Color(0xff2a446b),
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        labelText: 'Password',
-                                        hintText: 'Enter Password',
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const StudentChangePassword()));
-                                          },
-                                          child: const Text(
-                                            "Forgot Password ?",
-                                            style: TextStyle(
-                                              color: Color(0xff2a446b),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Container(
-                                      height: 50,
-                                      width: 300,
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xff2a446b),
-                                            Color(0xff12d3c6)
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20)),
-                                      ),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            _performLogin(context);
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50, right: 20, left: 20),
+                    child: Column(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20, left: 20),
+                              child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    children: [
+                                      TextFormField(
+                                        controller: controllerEmail,
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return 'Please enter email';
                                           }
+                                          return null;
                                         },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.transparent,
-                                          shadowColor: Colors.transparent,
-                                        ),
-                                        child: const Text(
-                                          'LOG IN',
-                                          style: TextStyle(color: Colors.white),
+                                        decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.email_outlined,
+                                              color: Color(0xff2a446b)),
+                                          prefixIconColor: Color(0xff2a446b),
+                                          labelText: 'Email',
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          hintText: 'Enter Email',
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(0),
-                                          child: Text(
-                                            "Not our student yet..!?",
-                                            style: TextStyle(
-                                                color: Colors.grey.shade700,
-                                                fontSize: 16),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(0),
-                                          child: TextButton(
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      TextFormField(
+                                        controller: controllerPassword,
+                                        obscureText: !isPasswordVisible,
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return 'Please enter password';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(Icons.lock,
+                                              color: Color(0xff2a446b)),
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              isPasswordVisible
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off,
+                                              color: const Color(0xff2a446b),
+                                            ),
                                             onPressed: () {
-                                              Navigator.pop(context);
+                                              _togglePasswordVisibility(context);
+                                            },
+                                          ),
+                                          prefixIconColor:
+                                          const Color(0xff2a446b),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          labelText: 'Password',
+                                          hintText: 'Enter Password',
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
                                               Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      RegistrationPage(
-                                                          displaySemesterMap),
-                                                ),
-                                              );
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                      const StudentChangePassword()));
                                             },
                                             child: const Text(
-                                              "Register here",
+                                              "Forgot Password ?",
                                               style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Color(0xff2a446b),
-                                                  decoration:
-                                                      TextDecoration.underline),
+                                                color: Color(0xff2a446b),
+                                              ),
                                             ),
                                           ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Container(
+                                        height: 50,
+                                        width: 300,
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Color(0xff2a446b),
+                                              Color(0xff12d3c6)
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20)),
                                         ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(0),
-                                          child: TextButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const ContactUs(),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text(
-                                              "Contact us",
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              _performLogin(context);
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.transparent,
+                                            shadowColor: Colors.transparent,
+                                          ),
+                                          child: const Text(
+                                            'LOG IN',
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            child: Text(
+                                              "Not our student yet..!?",
                                               style: TextStyle(
-                                                  color: Color(0xff2a446b),
+                                                  color: Colors.grey.shade700,
                                                   fontSize: 16),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        RegistrationPage(
+                                                            displaySemesterMap),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                "Register here",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Color(0xff2a446b),
+                                                    decoration:
+                                                    TextDecoration.underline),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                    const ContactUs(),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                "Contact us",
+                                                style: TextStyle(
+                                                    color: Color(0xff2a446b),
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -418,6 +419,7 @@ class _LoginPageState extends State<LoginPage> {
           var theory = data["Theory"].toString();
           var practical = data["Practical"].toString();
           var papers = data["Papers"].toString();
+          var demo = data["Demo"].toString();
           var semData;
           Query dbRef = FirebaseDatabase.instance
               .ref()
@@ -448,6 +450,7 @@ class _LoginPageState extends State<LoginPage> {
                 await saveData('Theory', theory);
                 await saveData('Practical', practical);
                 await saveData('Papers', papers);
+                await saveData('Demo', demo);
                 await saveData('key', key);
                 count = count + 1;
                 Navigator.pop(context);
@@ -471,6 +474,7 @@ class _LoginPageState extends State<LoginPage> {
                 await saveData('Theory', theory);
                 await saveData('Practical', practical);
                 await saveData('Papers', papers);
+                await saveData('Demo', demo);
                 await saveData('key', key);
                 count = count + 1;
                 Navigator.pop(context);
@@ -493,6 +497,7 @@ class _LoginPageState extends State<LoginPage> {
               prefs.remove("Theory");
               prefs.remove("Practical");
               prefs.remove("Papers");
+              prefs.remove("Demo");
               prefs.remove("key");
             }
           } else if (semData == "false") {
