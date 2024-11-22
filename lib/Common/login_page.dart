@@ -420,20 +420,14 @@ class _LoginPageState extends State<LoginPage> {
           var practical = data["Practical"].toString();
           var papers = data["Papers"].toString();
           var demo = data["Demo"].toString();
-          var semData;
+          Map semData ={};
           Query dbRef = FirebaseDatabase.instance
               .ref()
-              .child('ProgrammerProdigies/tblSemester/$semester');
+              .child('ProgrammerProdigies/tblSemester').child(semester);
           DatabaseEvent databaseEventStudent = await dbRef.once();
           DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
-          for (var x in dataSnapshotStudent.children) {
-            semData = x.value as String;
-            if (semData.toString().contains("true") ||
-                semData.toString().contains("false")) {
-              break;
-            }
-          }
-          if (semData == "true") {
+          semData = dataSnapshotStudent.value as Map;
+          if (semData["Visibility"] == "true") {
             if (FCMToken == "") {
               final updatedData = {"FCMToken": fcmToken};
               final userRef = FirebaseDatabase.instance
@@ -446,6 +440,7 @@ class _LoginPageState extends State<LoginPage> {
                 await saveData('FirstName', firstName);
                 await saveData('LastName', lastName);
                 await saveData('Semester', semester);
+                await saveData('SemesterName', semData["Semester"]);
                 await saveData('StudentEmail', email);
                 await saveData('Theory', theory);
                 await saveData('Practical', practical);
@@ -469,6 +464,7 @@ class _LoginPageState extends State<LoginPage> {
                   data["Password"].toString() == encryptString(password)) {
                 await saveData('FirstName', firstName);
                 await saveData('LastName', lastName);
+                await saveData('SemesterName', semData["Semester"]);
                 await saveData('Semester', semester);
                 await saveData('StudentEmail', email);
                 await saveData('Theory', theory);
@@ -500,7 +496,7 @@ class _LoginPageState extends State<LoginPage> {
               prefs.remove("Demo");
               prefs.remove("key");
             }
-          } else if (semData == "false") {
+          } else if (semData["Visibility"] == "false") {
             count = count + 1;
             showDialog(
               context: context,
@@ -508,7 +504,7 @@ class _LoginPageState extends State<LoginPage> {
                 return AlertDialog(
                   title: const Text('Login..!!'),
                   content: const Text(
-                      "The semester you are trying to access is currently not available. Please contact admin on this email address :- programmerprodigies@gmail.com for more details"),
+                      "The semester you are trying to access is currently not available.\nPlease contact admin on this email address:- programmerprodigies@gmail.com for more details"),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),

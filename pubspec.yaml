@@ -83,6 +83,7 @@ flutter:
    - assets/GIF/
    - assets/Logo/
    - assets/Animation/
+   - assets/QR/
    - assets/encrypted_google-services.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

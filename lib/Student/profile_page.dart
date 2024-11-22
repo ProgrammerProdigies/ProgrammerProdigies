@@ -136,6 +136,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   prefs.remove("FirstName");
                   prefs.remove("LastName");
                   prefs.remove("Semester");
+                  prefs.remove("SemesterName");
                   prefs.remove("StudentEmail");
                   prefs.remove("Theory");
                   prefs.remove("Practical");

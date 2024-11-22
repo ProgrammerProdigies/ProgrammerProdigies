@@ -1,11 +1,15 @@
 // ignore_for_file: non_constant_identifier_names
+import 'dart:io';
+
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:programmerprodigies/Student/chapters_page.dart';
 import 'package:programmerprodigies/Student/profile_page.dart';
 import 'package:programmerprodigies/saveSharePreferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -28,6 +32,10 @@ class _StudentHomePageState extends State<StudentHomePage> {
   bool practical = false;
   bool papers = false;
   bool demo = false;
+  var firstName = "";
+  var lastname = "";
+  var amount = 0;
+  var semesterName = "";
 
   String viewMode = "Normal";
   DatabaseReference dbRef =
@@ -41,6 +49,19 @@ class _StudentHomePageState extends State<StudentHomePage> {
     var Theory = (await getData("Theory"))!;
     var Practical = (await getData("Practical"))!;
     var Papers = (await getData("Papers"))!;
+    firstName = (await getData("FirstName"))!;
+    lastname = (await getData("LastName"))!;
+    semesterName = (await getData("SemesterName"))!;
+
+    if(semesterName == "Semester 1"){
+      amount = 149;
+    }
+    if(semesterName == "Semester 3"){
+      amount = 199;
+    }
+    if(semesterName == "GSET"){
+      amount = 999;
+    }
 
     demo = Demo == "true";
     theory = Theory == "true";
@@ -108,13 +129,12 @@ class _StudentHomePageState extends State<StudentHomePage> {
     return finalSubjects;
   }
 
-
   void handleCardTap(BuildContext context, int index) {
     String category = finalSubjects[index]["Category"];
     bool isSubscribed = (category == "Theory" && theory) ||
         (category == "Practical" && practical) ||
         (category == "Papers" && papers);
-    if(category == "Demo"){
+    if (category == "Demo") {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -125,7 +145,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         ),
       );
-    }else{
+    } else {
       if (isSubscribed) {
         // User is subscribed for the selected category, proceed to the next page
         Navigator.push(
@@ -145,14 +165,38 @@ class _StudentHomePageState extends State<StudentHomePage> {
           builder: (context) {
             return AlertDialog(
               title: const Text("Premium Feature"),
-              content: const Text(
-                  "Currently you have not subscribed for this package. Please contact us for more details."),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                      "Currently you have not subscribed for this package.\nPlease pay $amount/- on below QR code and send us the screen shot on 8849165682 whatsapp.",
+                      style: const TextStyle(
+                        fontSize: 16
+                      ),
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                    Image.asset(
+                      "assets/QR/QR.jpg",
+                      height: MediaQuery.of(context).size.height * 0.35,
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                    const Text("You can find the number in contact page as well.")
+                  ],
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                   child: const Text('OK'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    launchWhatsApp();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Send message'),
                 ),
               ],
             );
@@ -161,7 +205,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -215,40 +258,75 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           color: const Color(0xff2a446b),
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        child: Column(
+                        child: Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Image.asset(
-                              "assets/Logo/Programmer.png",
-                              width: MediaQuery.of(context).size.width * 0.25,
+                            Column(
+                              children: [
+                                Image.asset(
+                                  "assets/Logo/Programmer.png",
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.25,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 10),
+                                          child: Text(
+                                            finalSubjects[index]["Subject"],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(0),
+                                          child: Text(
+                                            finalSubjects[index]["Category"],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(0),
-                              child: SizedBox(
-                                height: MediaQuery.of(context).size.width * 0.2,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child: Text(
-                                        finalSubjects[index]["Subject"],
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(0),
-                                      child: Text(
-                                        finalSubjects[index]["Category"],
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                            Positioned(
+                              top: 8, // Distance from the top of the card
+                              right: 8, // Distance from the right of the card
+                              child: Visibility(
+                                visible: demo &&
+                                    (finalSubjects[index]
+                                                ["Category"] ==
+                                            "Practical" ||
+                                        finalSubjects[index]["Category"] ==
+                                            "Papers" ||
+                                        finalSubjects[index]["Category"] ==
+                                            "Theory"),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(3),
+                                  child: Icon(
+                                    Icons.star,
+                                    color: Colors.yellow[700],
+                                    size: 20,
+                                  ),
                                 ),
                               ),
                             ),
@@ -286,5 +364,29 @@ class _StudentHomePageState extends State<StudentHomePage> {
         },
       ),
     );
+  }
+
+  Future<void> launchWhatsApp() async {
+    String url;
+    if (Platform.isIOS) {
+      url = 'https://wa.me/+918849165682?text=${Uri.encodeFull("Hello,My name is $firstName $lastname\nI have paid $amount/- for $semesterName here is the screenshot.")}';
+    } else {
+      url = 'whatsapp://send?phone=+918849165682&text=${Uri.encodeFull("Hello,My name is $firstName $lastname\nI have paid $amount/- for $semesterName here is the screenshot.")}';
+    }
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      // If unable to launch email, copy the email address to clipboard
+      await Clipboard.setData(const ClipboardData(text: '+91 8849165682'));
+      // Show a snackbar to the user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Number copied you can save the number and do message on that number.'),
+          ),
+        );
+      }
+      throw 'Could not launch $url';
+    }
   }
 }

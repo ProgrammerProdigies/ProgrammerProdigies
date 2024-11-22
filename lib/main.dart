@@ -135,49 +135,63 @@ class _SplashScreenState extends State<SplashScreen> {
           var practical = data["Practical"].toString();
           var papers = data["Papers"].toString();
           var demo = data["Demo"].toString();
-          if (FCMToken == fcmToken) {
-            await saveData('FirstName', firstName);
-            await saveData('LastName', lastName);
-            await saveData('Semester', semester);
-            await saveData('StudentEmail', email);
-            await saveData('Theory', theory);
-            await saveData('Practical', practical);
-            await saveData('Papers', papers);
-            await saveData('Demo', demo);
-            await saveData('key', key);
-            page = const StudentHomePage();
-            return;
-          } else if (FCMToken == "") {
-            await saveData('FirstName', firstName);
-            await saveData('LastName', lastName);
-            await saveData('Semester', semester);
-            await saveData('StudentEmail', email);
-            await saveData('Theory', theory);
-            await saveData('Practical', practical);
-            await saveData('Papers', papers);
-            await saveData('Demo', demo);
-            await saveData('key', key);
-            final updatedData = {"FCMToken": fcmToken};
-            final userRef = FirebaseDatabase.instance
-                .ref()
-                .child("ProgrammerProdigies/tblStudent")
-                .child(key!);
-            await userRef.update(updatedData);
-            page = const StudentHomePage();
-            return;
+          Map semData ={};
+          Query dbRef = FirebaseDatabase.instance
+              .ref()
+              .child('ProgrammerProdigies/tblSemester').child(semester);
+          DatabaseEvent databaseEventStudent = await dbRef.once();
+          DataSnapshot dataSnapshotStudent = databaseEventStudent.snapshot;
+          semData = dataSnapshotStudent.value as Map;
+          if(semData["Visibility"] == "true"){
+            if (FCMToken == fcmToken) {
+              await saveData('FirstName', firstName);
+              await saveData('LastName', lastName);
+              await saveData('Semester', semester);
+              await saveData('SemesterName', semData["Semester"]);
+              await saveData('StudentEmail', email);
+              await saveData('Theory', theory);
+              await saveData('Practical', practical);
+              await saveData('Papers', papers);
+              await saveData('Demo', demo);
+              await saveData('key', key);
+              page = const StudentHomePage();
+              return;
+            } else if (FCMToken == "") {
+              await saveData('FirstName', firstName);
+              await saveData('LastName', lastName);
+              await saveData('Semester', semester);
+              await saveData('SemesterName', semData["Semester"]);
+              await saveData('StudentEmail', email);
+              await saveData('Theory', theory);
+              await saveData('Practical', practical);
+              await saveData('Papers', papers);
+              await saveData('Demo', demo);
+              await saveData('key', key);
+              final updatedData = {"FCMToken": fcmToken};
+              final userRef = FirebaseDatabase.instance
+                  .ref()
+                  .child("ProgrammerProdigies/tblStudent")
+                  .child(key!);
+              await userRef.update(updatedData);
+              page = const StudentHomePage();
+              return;
+            } else {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.remove("FirstName");
+              prefs.remove("LastName");
+              prefs.remove("Semester");
+              prefs.remove("SemesterName");
+              prefs.remove("StudentEmail");
+              prefs.remove("Theory");
+              prefs.remove("Practical");
+              prefs.remove("Papers");
+              prefs.remove("Demo");
+              prefs.remove("key");
+              page = const MyApp();
+              return;
+            }
           } else {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.remove("FirstName");
-            prefs.remove("LastName");
-            prefs.remove("Semester");
-            prefs.remove("StudentEmail");
-            prefs.remove("Theory");
-            prefs.remove("Practical");
-            prefs.remove("Papers");
-            prefs.remove("Demo");
-            prefs.remove("key");
-            page = const MyApp();
-            return;
+            page = const LoginPage();
           }
         }
         return;

@@ -418,7 +418,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                             title: const Text(
                                                 "Thank you for registering."),
                                             content: const Text(
-                                                "You will be able to login soon."),
+                                                "You can login and enjoy the free demo material and speed up your career with programmer prodigies."),
                                             actions: <Widget>[
                                               OutlinedButton(
                                                 child: const Text('OK'),
