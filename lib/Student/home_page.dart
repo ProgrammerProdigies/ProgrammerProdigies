@@ -62,6 +62,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
     if(semesterName == "GSET"){
       amount = 999;
     }
+    if(semesterName == "NEET"){
+      amount = 999;
+    }
 
     demo = Demo == "true";
     theory = Theory == "true";
