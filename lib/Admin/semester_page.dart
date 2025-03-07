@@ -4,8 +4,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:programmerprodigies/Admin/add_new_semester.dart';
 import 'package:programmerprodigies/Admin/subject_page.dart';
-import 'package:programmerprodigies/Models/sem_model.dart';
+import 'package:programmerprodigies/Admin/update_semester_details.dart';
 
 class AdminSemesterPage extends StatefulWidget {
   const AdminSemesterPage({super.key});
@@ -18,8 +19,7 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
   List<Map> semester = [];
   Future<List<Map>>? semesterFuture;
 
-  var dbRef =
-      FirebaseDatabase.instance.ref().child("ProgrammerProdigies/tblSemester");
+  var dbRef = FirebaseDatabase.instance.ref().child("programmerProdigies/tblSemester");
 
   String viewMode = "Normal";
 
@@ -31,8 +31,13 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
         values.forEach((key, value) {
           semester.add({
             "key": key,
-            "Semester": value["Semester"],
-            "Visibility": value["Visibility"],
+            "Semester": value["Semester"] ?? "",
+            "Visibility": value["Visibility"] ?? "",
+            "PapersPrice": value["PapersPrice"] ?? "",
+            "PracticalPrice": value["PracticalPrice"] ?? "",
+            "TheoryAndPracticalPrice": value["TheoryAndPracticalPrice"] ?? "",
+            "TheoryPrice": value["TheoryPrice"] ?? "",
+            "AllPrice": value["AllPrice"] ?? "",
           });
         });
         semester.sort((a, b) => a["Semester"].compareTo(b["Semester"]));
@@ -56,44 +61,44 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
         ),
       );
     }
-    // else if (viewMode == "Edit") {
-    //   // Create a TextEditingController to manage the input
-    //   TextEditingController nameController =
-    //       TextEditingController(text: semester[index]["semester"]);
-    //
-    //   // Show an AlertDialog for editing the subject name
-    //   showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertDialog(
-    //         title: const Text('Edit Semester Name'),
-    //         content: TextField(
-    //           controller: nameController,
-    //           decoration:
-    //               const InputDecoration(hintText: 'Enter new semester name'),
-    //         ),
-    //         actions: [
-    //           TextButton(
-    //             onPressed: () => Navigator.of(context).pop(),
-    //             // Close the dialog
-    //             child: const Text('Cancel'),
-    //           ),
-    //           TextButton(
-    //             onPressed: () {
-    //               // Update the subject name
-    //               setState(() {
-    //                 semester[index]["semester"] =
-    //                     nameController.text; // Update the name in the list
-    //               });
-    //               Navigator.of(context).pop(); // Close the dialog
-    //             },
-    //             child: const Text('Save'),
-    //           ),
-    //         ],
-    //       );
-    //     },
-    //   );
-    // }
+    else if (viewMode == "Edit") {
+      // Create a TextEditingController to manage the input
+
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>AdminSemesterUpdatePage(semester[index])));
+
+      // Show an AlertDialog for editing the subject name
+      // showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AlertDialog(
+      //       title: const Text('Edit Semester Name'),
+      //       content: TextField(
+      //         controller: nameController,
+      //         decoration:
+      //             const InputDecoration(hintText: 'Enter new semester name'),
+      //       ),
+      //       actions: [
+      //         TextButton(
+      //           onPressed: () => Navigator.of(context).pop(),
+      //           // Close the dialog
+      //           child: const Text('Cancel'),
+      //         ),
+      //         TextButton(
+      //           onPressed: () {
+      //             // Update the subject name
+      //             setState(() {
+      //               semester[index]["semester"] =
+      //                   nameController.text; // Update the name in the list
+      //             });
+      //             Navigator.of(context).pop(); // Close the dialog
+      //           },
+      //           child: const Text('Save'),
+      //         ),
+      //       ],
+      //     );
+      //   },
+      // );
+    }
   }
 
   handleDoubleClick(BuildContext context, int index) {
@@ -118,12 +123,11 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
                     final updatedData = {"Visibility": "true"};
                     final userRef = FirebaseDatabase.instance
                         .ref()
-                        .child("ProgrammerProdigies/tblSemester")
+                        .child("programmerProdigies/tblSemester")
                         .child(semester[index]["key"]);
                     await userRef.update(updatedData);
                     Navigator.of(context).pop();
-                    setState(() {
-                    });
+                    setState(() {});
                   },
                   child: const Text('Yes'),
                 ),
@@ -151,13 +155,12 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
                     final updatedData = {"Visibility": "false"};
                     final userRef = FirebaseDatabase.instance
                         .ref()
-                        .child("ProgrammerProdigies/tblSemester")
+                        .child("programmerprodigies/tblSemester")
                         .child(semester[index]["key"]);
                     await userRef.update(updatedData);
                     // semester[index]["Visibility"] = "false";
                     Navigator.of(context).pop(); // Close the dialog
-                    setState(() {
-                    });
+                    setState(() {});
                   },
                   child: const Text('Yes'),
                 ),
@@ -216,7 +219,7 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
           } else if (snapshot.hasData) {
             if (semester.isNotEmpty) {
               return Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 child: GridView.builder(
                   physics: const BouncingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -285,97 +288,141 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
                       // },
                       onDoubleTap: () {
                         handleDoubleClick(context, index);
-                        setState(() {
-                        });
+                        setState(() {});
                       },
-                      child: Stack(
-                        children: [
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xff2a446b),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 1,
+                        child: Stack(
+                          children: [
+                            Card(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/Logo/Programmer.png",
-                                    width: MediaQuery.of(context).size.width *
-                                        0.27,
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(5),
-                                        child: SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.3,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 4),
-                                                child: Text(
-                                                  "Semester: ${semester[index]["Semester"]}",
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    color: Colors.white,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xff2a446b),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/Logo/Programmer.png",
+                                      width: MediaQuery.of(context).size.width *
+                                          0.27,
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(1),
+                                          child: SizedBox(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "Semester: ${semester[index]["Semester"]}",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "Theory: ${semester[index]["TheoryPrice"]}/- ₹",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "Practical: ${semester[index]["PracticalPrice"]}/- ₹",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "Papers: ${semester[index]["PapersPrice"]}/- ₹",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "Theory - Practical: ${semester[index]["TheoryAndPracticalPrice"]}/- ₹",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      bottom: 4),
+                                                  child: Text(
+                                                    "All: ${semester[index]["AllPrice"]}/- ₹",
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    ],
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (chapter["Visibility"] == "false")
+                            // Overlay for restricted access
+                              Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.8),
+                                      // Dark overlay
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: MediaQuery.of(context).size.width * 0.04,
+                                    right:
+                                    MediaQuery.of(context).size.width * 0.03,
+                                    child: const Icon(
+                                      Icons.lock,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          if (chapter["Visibility"] == "false")
-                            // Overlay for restricted access
-                            Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.8),
-                                  // Dark overlay
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: const Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.lock,
-                                        color: Colors.white,
-                                        size: 40,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        "Restricted",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -408,48 +455,56 @@ class _AdminSemesterPageState extends State<AdminSemesterPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        // onPressed: () {
+        //   TextEditingController semesterController = TextEditingController();
+        //   showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return StatefulBuilder(
+        //         builder: (context, setState) {
+        //           return AlertDialog(
+        //             title: const Text('Add Semester'),
+        //             content: Column(
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 TextField(
+        //                   controller: semesterController,
+        //                   decoration:
+        //                       const InputDecoration(hintText: 'Add Semester'),
+        //                 ),
+        //               ],
+        //             ),
+        //             actions: [
+        //               TextButton(
+        //                 onPressed: () => Navigator.of(context).pop(),
+        //                 child: const Text('Cancel'),
+        //               ),
+        //               TextButton(
+        //                 onPressed: () {
+        //                   var semesterName = semesterController.text;
+        //                   SemesterModel sModel =
+        //                       SemesterModel(semesterName, "false");
+        //                   dbRef.push().set(sModel.toJson());
+        //                   setState(() {
+        //                     semesterFuture = getSemesterData();
+        //                   });
+        //                   Navigator.of(context).pop();
+        //                 },
+        //                 child: const Text('Add'),
+        //               ),
+        //             ],
+        //           );
+        //         },
+        //       );
+        //     },
+        //   );
+        // },
         onPressed: () {
-          TextEditingController semesterController = TextEditingController();
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return AlertDialog(
-                    title: const Text('Add Semester'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: semesterController,
-                          decoration:
-                              const InputDecoration(hintText: 'Add Semester'),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          var semesterName = semesterController.text;
-                          SemesterModel sModel =
-                              SemesterModel(semesterName, "false");
-                          dbRef.push().set(sModel.toJson());
-                          setState(() {
-                            semesterFuture = getSemesterData();
-                          });
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Add'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AdminAddNewSemester(),
+            ),
           );
         },
         backgroundColor: const Color(0xff2a446b),

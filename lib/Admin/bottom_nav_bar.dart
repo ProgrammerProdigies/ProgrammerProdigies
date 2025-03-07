@@ -3,11 +3,12 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:programmerprodigies/Admin/profile_page.dart';
-import 'package:programmerprodigies/Admin/registration_request.dart';
 import 'package:programmerprodigies/Admin/semester_page.dart';
+import 'package:programmerprodigies/Admin/updates_page.dart';
 
 class BottomBar extends StatefulWidget {
   final int selectedIndex;
+
   const BottomBar(this.selectedIndex, {super.key});
 
   @override
@@ -38,7 +39,7 @@ class _BottomBarState extends State<BottomBar> {
       ),
       const Scaffold(
         backgroundColor: Colors.white,
-        body: AdminRegistrationRequest(),
+        body: AdminUpdatesPageWithTab(),
       ),
       const Scaffold(
         backgroundColor: Colors.white,

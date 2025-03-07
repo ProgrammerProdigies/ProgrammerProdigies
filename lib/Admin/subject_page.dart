@@ -27,13 +27,13 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
 
   String viewMode = "Normal";
 
-  DatabaseReference ChepterdbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+  DatabaseReference ChapterDbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
   DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
 
   Future<List<Map>> getChapterData() async {
     chapters.clear();
     try {
-      DatabaseEvent event = await ChepterdbRef.once();
+      DatabaseEvent event = await ChapterDbRef.once();
       Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
 
       if (values != null) {
@@ -125,7 +125,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                   };
                   final subjectRef = FirebaseDatabase.instance
                       .ref()
-                      .child("ProgrammerProdigies/tblSubject")
+                      .child("programmerprodigies/tblSubject")
                       .child(subjectKey);
                   await subjectRef.update(updatedData); // Update Firebase
                   Navigator.of(context).pop();
@@ -178,7 +178,7 @@ class _AdminSubjectPageState extends State<AdminSubjectPage> {
                   await deleteChaptersAndPDFs(subjectKey);
                   await FirebaseDatabase.instance
                       .ref()
-                      .child("ProgrammerProdigies/tblSubject")
+                      .child("programmerprodigies/tblSubject")
                       .child(subjectKey)
                       .remove();
                   Navigator.of(context).pop();

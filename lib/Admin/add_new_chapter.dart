@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
   String? pdfName; // Store the uploaded PDF URL
   late String fileName;
   DatabaseReference dbRef =
-      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblChapters');
+      FirebaseDatabase.instance.ref().child('programmerProdigies/tblChapters');
 
   @override
   Widget build(BuildContext context) {
@@ -119,67 +120,49 @@ class _AdminAddNewChapterState extends State<AdminAddNewChapter> {
   }
 
   Future<void> submitChapter() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.email != 'programmerprodigies@gmail.com') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unauthorized access! Admin rights required.')),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate() && pdfPath != null) {
       try {
         await uploadPdf(); // Upload the PDF first
 
-        // Create an instance of ChapterModel
         ChapterModel newChapter = ChapterModel(
           chapterNameController.text,
           widget.subjectKey,
-          true, // Assuming you want the chapter to be visible by default
-          pdfName!, // Include the uploaded PDF URL
+          true, // Visible by default
+          pdfName!,
         );
 
-        // Add the chapter data to the database using the toJson method
+        // Add chapter to database
         await dbRef.push().set(newChapter.toJson());
 
-        // Clear the input fields
-        chapterNameController.clear();
-        setState(() {
-          pdfPath = null;
-        });
-
-        // Show a success message
+        // Success Message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Chapter added successfully!')),
         );
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Subject Added"),
-              content: const Text(
-                  "Subject added successfully..!!"),
-              actions: <Widget>[
-                OutlinedButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AdminChaptersPage(widget.subjectKey),
-                      ),
-                    );
-                  },
-                )
-              ],
-            );
-          },
+
+        // Navigate to Chapters Page
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminChaptersPage(widget.subjectKey),
+          ),
         );
       } catch (e) {
-        // Handle errors during upload or database write
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please fill all fields and select a PDF.')),
+        const SnackBar(content: Text('Please fill all fields and select a PDF.')),
       );
     }
   }

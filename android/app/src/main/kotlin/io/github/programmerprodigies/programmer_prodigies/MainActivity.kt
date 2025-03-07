@@ -1,4 +1,4 @@
-package com.example.programmer_prodigies
+package io.github.programmerprodigies.programmer_prodigies
 
 import io.flutter.embedding.android.FlutterActivity
 

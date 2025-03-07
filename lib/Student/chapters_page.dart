@@ -165,6 +165,7 @@ class _StudentChaptersPageState extends State<StudentChaptersPage> {
                                                           style: const TextStyle(
                                                             fontSize: 15.5,
                                                             color: Colors.white,
+                                                            overflow: TextOverflow.ellipsis
                                                           ),
                                                         ),
                                                       ),

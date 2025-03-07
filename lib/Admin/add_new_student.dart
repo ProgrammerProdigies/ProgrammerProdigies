@@ -403,7 +403,8 @@ class _AdminAddNewStudentState extends State<AdminAddNewStudent> {
                                         theory,
                                         practical,
                                         papers,
-                                        false);
+                                        false,
+                                        "");
                                     dbRef.push().set(regobj.toJson());
                                     sendMail(regobj.toJson());
                                     showDialog(

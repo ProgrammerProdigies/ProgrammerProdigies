@@ -1,15 +1,15 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 import 'dart:io';
-
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:programmerprodigies/Student/chapters_page.dart';
-import 'package:programmerprodigies/Student/profile_page.dart';
-import 'package:programmerprodigies/saveSharePreferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../saveSharePreferences.dart';
+import 'buy_package.dart';
+import 'chapters_page.dart';
+import 'profile_page.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -26,6 +26,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   var filteredPapersSubjects = [];
   List<Map> finalSubjects = [];
   List<Map> packageSubjects = [];
+  bool isLoading = true;
 
   late String studentSemester;
   bool theory = false;
@@ -34,16 +35,14 @@ class _StudentHomePageState extends State<StudentHomePage> {
   bool demo = false;
   var firstName = "";
   var lastname = "";
-  var amount = 0;
   var semesterName = "";
+  var requestFor = "";
 
   String viewMode = "Normal";
   DatabaseReference dbRef =
       FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
 
-  Future<List<Map>> getPackagesData() async {
-    finalSubjects.clear();
-    packageSubjects.clear();
+  Future<void> initializeData() async {
     studentSemester = (await getData("Semester"))!;
     var Demo = (await getData("Demo"))!;
     var Theory = (await getData("Theory"))!;
@@ -52,24 +51,39 @@ class _StudentHomePageState extends State<StudentHomePage> {
     firstName = (await getData("FirstName"))!;
     lastname = (await getData("LastName"))!;
     semesterName = (await getData("SemesterName"))!;
+    var studentKey = (await getKey())!;
 
-    if(semesterName == "Semester 1"){
-      amount = 149;
-    }
-    if(semesterName == "Semester 3"){
-      amount = 199;
-    }
-    if(semesterName == "GSET"){
-      amount = 999;
-    }
-    if(semesterName == "NEET"){
-      amount = 999;
-    }
+    DatabaseReference dbStudentRef = FirebaseDatabase.instance
+        .ref()
+        .child('ProgrammerProdigies/tblStudent/$studentKey');
+
+    await dbStudentRef.once().then((event) {
+      Map<dynamic, dynamic>? values = event.snapshot.value as Map?;
+      if (values != null) {
+        requestFor = values["RequestFor"] ?? "";
+      }
+    });
 
     demo = Demo == "true";
     theory = Theory == "true";
     practical = Practical == "true";
     papers = Papers == "true";
+
+    await getPackagesData();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<List<Map>> getPackagesData() async {
+    finalSubjects.clear();
+    packageSubjects.clear();
 
     subjects.clear();
 
@@ -162,55 +176,108 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         );
       } else {
-        // User is not subscribed, show the alert dialog once
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Premium Feature"),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Text(
-                      "Currently you have not subscribed for this package.\nPlease pay $amount/- on below QR code and send us the screen shot on 8849165682 whatsapp.",
-                      style: const TextStyle(
-                        fontSize: 16
-                      ),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-                    Image.asset(
-                      "assets/QR/QR.jpg",
-                      height: MediaQuery.of(context).size.height * 0.35,
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-                    const Text("You can find the number in contact page as well.")
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    launchWhatsApp();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Send message'),
-                ),
-              ],
-            );
-          },
-        );
+        if(requestFor.isEmpty){
+          // User is not subscribed, show the alert dialog once
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Premium Feature"),
+                content: const Text("Please buy package"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    autofocus: true,
+                    onPressed: () async {
+                      // Show loading dialog
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) {
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                      );
+
+                      // Wait for 2 seconds
+                      await Future.delayed(const Duration(seconds: 1));
+
+                      // Dismiss loading dialog
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              StudentBuyPackage(studentSemester, semesterName),
+                        ),
+                      );
+                    },
+                    child: const Text('Buy package'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // User is not subscribed, show the alert dialog once
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Premium Feature"),
+                content: const Text("You already have selected the package. Please wait for a while our team will give you access soon.\n\nFeel free to contact us using the contact button below"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Ok'),
+                  ),
+                  TextButton(
+                    autofocus: true,
+                    onPressed: () async {
+                      // Show loading dialog
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) {
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                      );
+
+                      // Wait for 2 seconds
+                      await Future.delayed(const Duration(seconds: 1));
+
+                      await launchWhatsApp();
+
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Contact us'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff2a446b),
@@ -233,163 +300,211 @@ class _StudentHomePageState extends State<StudentHomePage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Map>>(
-        future: getPackagesData(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            if (finalSubjects.isNotEmpty) {
-              //work here
-              return GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                ),
-                itemCount: finalSubjects.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () => handleCardTap(context, index),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xff2a446b),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Column(
-                              children: [
-                                Image.asset(
-                                  "assets/Logo/Programmer.png",
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.25,
+      body: Stack(
+        children: [
+          // Main content with subjects
+          Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<Map>>(
+                  future: getPackagesData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData) {
+                      if (finalSubjects.isNotEmpty) {
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                          ),
+                          itemCount: finalSubjects.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () => handleCardTap(context, index),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(0),
-                                  child: SizedBox(
-                                    height:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
-                                          child: Text(
-                                            finalSubjects[index]["Subject"],
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(0),
-                                          child: Text(
-                                            finalSubjects[index]["Category"],
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              top: 8, // Distance from the top of the card
-                              right: 8, // Distance from the right of the card
-                              child: Visibility(
-                                visible: demo &&
-                                    (finalSubjects[index]
-                                                ["Category"] ==
-                                            "Practical" ||
-                                        finalSubjects[index]["Category"] ==
-                                            "Papers" ||
-                                        finalSubjects[index]["Category"] ==
-                                            "Theory"),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xff2a446b),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: Icon(
-                                    Icons.star,
-                                    color: Colors.yellow[700],
-                                    size: 20,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Image.asset(
+                                            "assets/Logo/Programmer.png",
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.25,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(0),
+                                            child: SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.2,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10),
+                                                    child: Text(
+                                                      finalSubjects[index]
+                                                          ["Subject"],
+                                                      style: const TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(0),
+                                                    child: Text(
+                                                      finalSubjects[index]
+                                                          ["Category"],
+                                                      style: const TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Visibility(
+                                          visible: demo &&
+                                              (finalSubjects[index]
+                                                          ["Category"] ==
+                                                      "Practical" ||
+                                                  finalSubjects[index]
+                                                          ["Category"] ==
+                                                      "Papers" ||
+                                                  finalSubjects[index]
+                                                          ["Category"] ==
+                                                      "Theory"),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            padding: const EdgeInsets.all(3),
+                                            child: Icon(
+                                              Icons.star,
+                                              color: Colors.yellow[700],
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              return Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Lottie.asset(
-                      'assets/Animation/no_data_found.json',
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No subjects found',
-                      style: TextStyle(fontSize: 25),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                            );
+                          },
+                        );
+                      } else {
+                        return Center(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Lottie.asset(
+                                'assets/Animation/no_data_found.json',
+                                width: MediaQuery.of(context).size.width * 0.6,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.3,
+                                fit: BoxFit.cover,
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No subjects found',
+                                style: TextStyle(fontSize: 25),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
                 ),
-              );
-            }
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+              ),
+            ],
+          ),
+        ],
       ),
+      floatingActionButton: requestFor.isEmpty
+          ? FloatingActionButton(
+               tooltip: "Buy Package",
+              onPressed: () async {
+                buyPackage(context);
+              },
+              backgroundColor: Colors.white,
+              child: const Icon(
+                Icons.shopping_bag,
+                color: Color(0xff2a446b),
+              ),
+            )
+          : null,
     );
   }
 
+  Future<void> buyPackage(BuildContext context) async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+
+    // Wait for 2 seconds
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Dismiss loading dialog
+    Navigator.of(context).pop();
+
+    // Navigate to the next page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentBuyPackage(studentSemester, semesterName),
+      ),
+    );
+  }
   Future<void> launchWhatsApp() async {
     String url;
     if (Platform.isIOS) {
-      url = 'https://wa.me/+918849165682?text=${Uri.encodeFull("Hello,My name is $firstName $lastname\nI have paid $amount/- for $semesterName here is the screenshot.")}';
+      url =
+      'https://wa.me/+918849165682?text=${Uri.encodeFull("Hello, My name is *$firstName $lastname*, I need some assistance.")}';
     } else {
-      url = 'whatsapp://send?phone=+918849165682&text=${Uri.encodeFull("Hello,My name is $firstName $lastname\nI have paid $amount/- for $semesterName here is the screenshot.")}';
+      url =
+      'whatsapp://send?phone=+918849165682&text=${Uri.encodeFull("Hello, My name is *$firstName $lastname*, I need some assistance.")}';
     }
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    } else {
-      // If unable to launch email, copy the email address to clipboard
-      await Clipboard.setData(const ClipboardData(text: '+91 8849165682'));
-      // Show a snackbar to the user
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Number copied you can save the number and do message on that number.'),
-          ),
-        );
-      }
-      throw 'Could not launch $url';
-    }
+    await launchUrl(Uri.parse(url));
   }
 }

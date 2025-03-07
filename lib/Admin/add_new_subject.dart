@@ -18,7 +18,7 @@ class _AdminAddNewSubjectState extends State<AdminAddNewSubject> {
   TextEditingController subjectController = TextEditingController();
   String? selectedCategory = "Select Category";
   DatabaseReference dbRef =
-      FirebaseDatabase.instance.ref().child('ProgrammerProdigies/tblSubject');
+      FirebaseDatabase.instance.ref().child('programmerProdigies/tblSubject');
   late String? fcmToken;
   List<Map<String, dynamic>> displaySemesterMap = [];
   List<Map<String, dynamic>> displayCategoryMap = [

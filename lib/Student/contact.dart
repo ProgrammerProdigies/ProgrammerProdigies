@@ -4,9 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:programmerprodigies/saveSharePreferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/services.dart'; // Import for clipboard
+import 'package:flutter/services.dart';
+
+import '../saveSharePreferences.dart'; // Import for clipboard
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -25,7 +26,7 @@ class _ContactUs extends State<ContactUs> {
   Future<void> launchEmail() async {
     final Uri gmailUri = Uri(
       scheme: 'intent',
-      path: 'mailto:programmerprodigies@gmail.com',
+      path: 'mailto:programmerprodigiese@gmail.com',
     );
 
     try {
@@ -36,7 +37,7 @@ class _ContactUs extends State<ContactUs> {
         );
       } else {
         // If unable to launch email, copy the email address to clipboard
-        await Clipboard.setData(const ClipboardData(text: 'programmerprodigies@gmail.com'));
+        await Clipboard.setData(const ClipboardData(text: 'programmerprodigiese@gmail.com'));
         // Show a snackbar to the user
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -48,7 +49,7 @@ class _ContactUs extends State<ContactUs> {
       }
     } catch (e) {
       // In case of error, copy the email to clipboard
-      await Clipboard.setData(const ClipboardData(text: 'programmerprodigies@gmail.com'));
+      await Clipboard.setData(const ClipboardData(text: 'programmerprodigiese@gmail.com'));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -199,7 +200,7 @@ class _ContactUs extends State<ContactUs> {
                     padding: MaterialStateProperty.all(EdgeInsets.zero),
                   ),
                   child: const Text(
-                    'programmerprodigies@gmail.com',
+                    'programmerprodigiese@gmail.com',
                     style: TextStyle(
                       color: Colors.blue,
                       decoration: TextDecoration.underline,

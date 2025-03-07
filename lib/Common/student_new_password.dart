@@ -1,6 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:programmerprodigies/Common/login_page.dart';
+import 'package:programmerprodigies/Common/login/login_page.dart';
 
 class StudentNewPassword extends StatefulWidget {
   final String userKey;

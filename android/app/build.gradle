@@ -3,8 +3,8 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
     id 'com.google.gms.google-services'
-    id "org.jetbrains.kotlin.android" version "2.0.21"
 }
+
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 
 
 android {
-    namespace "com.example.programmer_prodigies"
+    namespace "io.github.programmerprodigies.programmer_prodigies"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -45,10 +45,10 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         // change this version code for new version
-        versionCode 5
+        versionCode 5.1
         // Version name for application only
-        versionName "3.1.1"
-        minSdkVersion 21
+        versionName "5.1.0"
+        minSdkVersion 23
         targetSdkVersion 34
     }
 
@@ -82,6 +82,15 @@ dependencies {
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics'
+
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion '2.0.21' // Force Kotlin 1.9.22
+            }
+        }
+    }
+
 
 
     // Add the dependencies for any other desired Firebase products

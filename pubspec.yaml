@@ -54,6 +54,10 @@ dependencies:
   encrypt: ^5.0.0
   flutter_dotenv: ^5.2.1
   path_provider: any
+  firebase_auth: ^5.2.0
+  fluttertoast: ^8.2.8
+  pretty_animated_buttons: ^0.0.2
+  slider_button: ^2.1.0
 
 
 dev_dependencies:
@@ -65,7 +69,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -78,13 +82,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-#   To add assets to your application, add an assets section, like this:
+  #   To add assets to your application, add an assets section, like this:
   assets:
-   - assets/GIF/
-   - assets/Logo/
-   - assets/Animation/
-   - assets/QR/
-   - assets/encrypted_google-services.json
+    - assets/GIF/
+    - assets/Logo/
+    - assets/Animation/
+    - assets/QR/
+    - assets/encrypted_google-services.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
