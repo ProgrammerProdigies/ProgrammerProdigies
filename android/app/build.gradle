@@ -44,8 +44,9 @@ android {
         applicationId "io.github.programmerprodigies.programmer_prodigies"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        // change this version code for new version
-        versionCode 5.1
+
+        // change this version code for new version no decimals
+        versionCode 6
         // Version name for application only
         versionName "5.1.0"
         minSdkVersion 23
